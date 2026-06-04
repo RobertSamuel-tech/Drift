@@ -96,7 +96,7 @@ export default function DashboardPage() {
             className="border border-slate-700/60 bg-slate-900"
           >
             {/* Column headers */}
-            <div className="grid grid-cols-[1fr_80px_80px_100px_120px_80px] items-center gap-4 border-b border-slate-800/60 px-4 py-2">
+            <div className="grid grid-cols-[1fr_80px_90px_80px_130px_160px] items-center gap-4 border-b border-slate-800/60 px-4 py-2">
               {['PRODUCT', 'SCORE', 'STATUS', 'GHOST', 'ANALYZED', 'ACTIONS'].map(col => (
                 <span key={col} className="font-mono text-[9px] uppercase tracking-widest text-slate-600">
                   {col}
@@ -112,7 +112,7 @@ export default function DashboardPage() {
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04, duration: 0.25 }}
-                  className={`grid grid-cols-[1fr_80px_80px_100px_120px_80px] items-center gap-4 px-0 py-0 ${scoreAccent(p.drift_score)} hover:bg-slate-800/30 transition-colors`}
+                  className={`grid grid-cols-[1fr_80px_90px_80px_130px_160px] items-center gap-4 px-0 py-0 ${scoreAccent(p.drift_score)} hover:bg-slate-800/30 transition-colors`}
                 >
                   {/* Project name */}
                   <Link href={`/dashboard/${p.id}`} className="flex items-center gap-3 px-4 py-3 group">
