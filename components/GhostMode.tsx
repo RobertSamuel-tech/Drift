@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, LayoutDashboard } from 'lucide-react'
+import { ArrowLeft, LayoutDashboard, Save, Loader2, Info } from 'lucide-react'
 import DriftScore from './DriftScore'
+import { calculateWasteMetrics, getCostTheme, formatCost } from '@/lib/cost-analysis'
 import DriftGrid from './DriftGrid'
 import SpecViewer from './SpecViewer'
 import NovusFeed from './NovusFeed'
@@ -17,15 +18,26 @@ interface Props {
   specContent: string
   novusData: NovusEvent[]
   driftZones: DriftZone[]
+  onSaveAndClose?: () => Promise<void>
 }
 
-export default function GhostMode({ project, specContent, novusData, driftZones }: Props) {
+export default function GhostMode({ project, specContent, novusData, driftZones, onSaveAndClose }: Props) {
   const [selectedZone, setSelectedZone] = useState<DriftZone | null>(null)
   const [panelOpen, setPanelOpen]       = useState(false)
+  const [saving, setSaving]             = useState(false)
+
+  const waste = calculateWasteMetrics(driftZones)
+  const costTheme = getCostTheme(waste.estimatedCost)
 
   function handleZoneClick(zone: DriftZone) {
     setSelectedZone(zone)
     setPanelOpen(true)
+  }
+
+  async function handleSaveAndClose() {
+    if (!onSaveAndClose) return
+    setSaving(true)
+    try { await onSaveAndClose() } finally { setSaving(false) }
   }
 
   return (
@@ -53,7 +65,42 @@ export default function GhostMode({ project, specContent, novusData, driftZones 
             <h1 className="text-xl font-bold tracking-tight text-white">{project.name}</h1>
           </div>
         </div>
-        <DriftScore score={project.drift_score} />
+
+        <div className="flex items-center gap-5">
+          {waste.wastedFeatures > 0 && (
+            <div className="hidden space-y-1.5 text-right md:block">
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">Ghost Features</span>
+                <span className="text-sm font-bold text-white">{waste.wastedFeatures}</span>
+              </div>
+              <div className="flex items-center justify-end gap-1.5">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">Est. Waste</span>
+                <span className={`text-sm font-bold ${costTheme.text}`}>{formatCost(waste.estimatedCost)}</span>
+                <span title="Estimate based on feature priority, sprint effort, and engineering cost assumptions.">
+                  <Info className="h-3 w-3 cursor-help text-slate-700" />
+                </span>
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">Time Lost</span>
+                <span className="text-sm font-bold text-white">{waste.wastedSprints} Sprints</span>
+              </div>
+            </div>
+          )}
+
+          {onSaveAndClose && (
+            <button
+              onClick={handleSaveAndClose}
+              disabled={saving}
+              className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-400 transition-all hover:bg-emerald-500/20 disabled:opacity-50"
+            >
+              {saving
+                ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving…</>
+                : <><Save className="h-3.5 w-3.5" /> Save & Close</>
+              }
+            </button>
+          )}
+          <DriftScore score={project.drift_score} />
+        </div>
       </motion.header>
 
       <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
@@ -62,9 +109,7 @@ export default function GhostMode({ project, specContent, novusData, driftZones 
         </div>
 
         <div className="overflow-y-auto border-b border-slate-800/60 p-6 md:flex-1 md:border-b-0 md:border-r md:border-slate-800/60">
-          <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
-            Drift Zones
-          </p>
+          <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">Drift Zones</p>
           <DriftGrid zones={driftZones} onZoneClick={handleZoneClick} />
         </div>
 

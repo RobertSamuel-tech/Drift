@@ -1,6 +1,7 @@
 'use client'
 
 import { Download } from 'lucide-react'
+import { calculateWasteMetrics, formatCost } from '@/lib/cost-analysis'
 import type { DriftZone } from '@/lib/database.types'
 import type { FallbackCard } from '@/lib/fallback-cards'
 
@@ -15,6 +16,7 @@ interface Props {
 
 export default function ExportButton({ projectName, score, analyzedAt, zones, cards, summary }: Props) {
   function download() {
+    const waste     = calculateWasteMetrics(zones)
     const riskOrder: Record<string, number> = { ghost: 0, overbuilt: 1, misunderstood: 2, underbuilt: 3 }
     const risks = [...zones]
       .filter(z => z.drift_type !== 'aligned')
@@ -44,7 +46,19 @@ export default function ExportButton({ projectName, score, analyzedAt, zones, ca
         ? `No ghost features detected.`
         : ghosts.map(z => `⚠ **${z.feature_name}** — Built as ${z.intended_priority} priority. ${z.actual_usage_score}/100 usage.`).join('\n'),
       ``,
-      `## 03 — AI Recommendations`,
+      `## 03 — Engineering Impact`,
+      ``,
+      waste.wastedFeatures === 0
+        ? `No engineering waste detected.`
+        : [
+            `**Estimated Waste:** ${formatCost(waste.estimatedCost)}`,
+            `**Ghost Features:** ${waste.wastedFeatures}`,
+            `**Sprints Lost:** ${waste.wastedSprints}`,
+            ``,
+            `> Estimate based on 5 engineers × 10 days/sprint × $800/day. Ghost and overbuilt features only.`,
+          ].join('\n'),
+      ``,
+      `## 04 — AI Recommendations`,
       ``,
       ...cards.map(c => [
         `### ${c.title} [${c.priority.toUpperCase()}]`,
@@ -54,7 +68,7 @@ export default function ExportButton({ projectName, score, analyzedAt, zones, ca
         `**Mockup:** ${c.mockup_suggestion}`,
         ``,
       ]).flat(),
-      `## 04 — Founder Summary`,
+      `## 05 — Founder Summary`,
       ``,
       `> ${summary}`,
       ``,

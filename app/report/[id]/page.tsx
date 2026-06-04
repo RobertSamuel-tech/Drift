@@ -1,8 +1,15 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { AlertTriangle, Ghost, Zap, ArrowLeft, ExternalLink } from 'lucide-react'
+import { AlertTriangle, Ghost, Zap, ArrowLeft, ExternalLink, Info } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase'
 import { getFallbackCard } from '@/lib/fallback-cards'
+import { calculateWasteMetrics, getCostTheme, formatCost } from '@/lib/cost-analysis'
+import { buildFeatureLifecycle } from '@/lib/feature-lifecycle'
+import { buildRealityMap } from '@/lib/reality-map'
+import { calculateFounderAlignment } from '@/lib/founder-alignment'
+import FeatureTimeline from '@/components/FeatureTimeline'
+import ProductRealityMap from '@/components/ProductRealityMap'
+import FounderAlignmentMeter from '@/components/FounderAlignmentMeter'
 import type { Project, DriftZone } from '@/lib/database.types'
 import type { FallbackCard } from '@/lib/fallback-cards'
 import ExportButton from './ExportButton'
@@ -65,7 +72,17 @@ export default async function ReportPage({ params }: { params: { id: string } })
     intended_priority: z.intended_priority as DriftZone['intended_priority'],
   }))
 
-  const p         = project as Project
+  const p              = project as Project
+  const waste          = calculateWasteMetrics(zones)
+  const costTheme      = getCostTheme(waste.estimatedCost)
+  const lifecycleItems = buildFeatureLifecycle(p, zones)
+  const realityData    = buildRealityMap(zones)
+  const alignmentData  = calculateFounderAlignment({
+    driftScore:         p.drift_score,
+    ghostFeatures:      zones.filter(z => z.drift_type === 'ghost').length,
+    overbuiltFeatures:  zones.filter(z => z.drift_type === 'overbuilt').length,
+    concentrationScore: realityData.concentrationScore,
+  })
   const topRisks  = [...zones].filter(z => z.drift_type !== 'aligned')
                      .sort((a, b) => (RISK_ORDER[a.drift_type] ?? 9) - (RISK_ORDER[b.drift_type] ?? 9))
                      .slice(0, 3)
@@ -121,9 +138,21 @@ export default async function ReportPage({ params }: { params: { id: string } })
           </div>
         </section>
 
+        {/* EXECUTIVE SUMMARY */}
+        <section>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">01 — Executive Summary</p>
+          <FounderAlignmentMeter
+            data={alignmentData}
+            ghostFeatures={zones.filter(z => z.drift_type === 'ghost').length}
+            overbuiltFeatures={zones.filter(z => z.drift_type === 'overbuilt').length}
+            concentrationScore={realityData.concentrationScore}
+            estimatedWaste={waste.estimatedCost}
+          />
+        </section>
+
         {/* TOP RISKS */}
         <section>
-          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">01 — Top Risks</p>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">02 — Top Risks</p>
           {topRisks.length === 0 ? (
             <p className="text-sm text-slate-500">No significant risks detected.</p>
           ) : (
@@ -141,9 +170,25 @@ export default async function ReportPage({ params }: { params: { id: string } })
           )}
         </section>
 
+        {/* PRODUCT REALITY MAP */}
+        <section>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">03 — Product Reality Map</p>
+          <ProductRealityMap data={realityData} />
+        </section>
+
+        {/* FEATURE LIFECYCLE */}
+        <section>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">04 — Feature Lifecycle</p>
+          {lifecycleItems.length === 0 ? (
+            <p className="text-sm text-slate-500">No features analysed yet.</p>
+          ) : (
+            <FeatureTimeline items={lifecycleItems} />
+          )}
+        </section>
+
         {/* GHOST FEATURES */}
         <section>
-          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">02 — Ghost Features</p>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">05 — Ghost Features</p>
           {ghosts.length === 0 ? (
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 text-sm text-emerald-400">
               No ghost features — all your builds are being used.
@@ -169,9 +214,47 @@ export default async function ReportPage({ params }: { params: { id: string } })
           )}
         </section>
 
+        {/* ENGINEERING IMPACT */}
+        <section>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">06 — Engineering Impact</p>
+          <div className={`rounded-2xl border p-8 shadow-xl shadow-black/30 ${costTheme.border} ${costTheme.bg}`}>
+            {waste.wastedFeatures === 0 ? (
+              <p className="text-sm text-slate-400">No engineering waste detected — all built features are being used.</p>
+            ) : (
+              <>
+                <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-3">
+                  <div className="text-center">
+                    <p className={`text-5xl font-black tabular-nums ${costTheme.text}`}>
+                      {formatCost(waste.estimatedCost)}
+                    </p>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Estimated Waste</p>
+                  </div>
+                  <div className="text-center">
+                    <p className={`text-5xl font-black tabular-nums ${costTheme.text}`}>{waste.wastedFeatures}</p>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                      Ghost Feature{waste.wastedFeatures !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <p className={`text-5xl font-black tabular-nums ${costTheme.text}`}>{waste.wastedSprints}</p>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Sprints Lost</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 rounded-xl border border-slate-700/40 bg-slate-950/40 p-3">
+                  <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-600" />
+                  <p className="text-xs text-slate-500">
+                    Based on actual feature usage tracked through Novus. Estimate assumes {' '}
+                    5 engineers × 10 days/sprint × $800/day. Ghost and overbuilt features only.
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+
         {/* AI RECOMMENDATIONS */}
         <section>
-          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">03 — AI Recommendations</p>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">07 — AI Recommendations</p>
           {cards.length === 0 ? (
             <p className="text-sm text-slate-500">No recommendations — product is well-aligned.</p>
           ) : (
@@ -208,7 +291,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
 
         {/* FOUNDER SUMMARY */}
         <section>
-          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">04 — Founder Summary</p>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">08 — Founder Summary</p>
           <blockquote className="rounded-2xl border border-violet-500/20 bg-violet-500/5 px-8 py-7">
             <p className="text-xl font-semibold leading-relaxed text-violet-100 md:text-2xl">
               &ldquo;{summary}&rdquo;

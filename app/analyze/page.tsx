@@ -1,14 +1,16 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Loader2, Sparkles, AlertCircle, Wand2, Save, CheckCircle } from 'lucide-react'
+import { ArrowLeft, Loader2, Sparkles, AlertCircle, Wand2, Save, CheckCircle, Maximize2 } from 'lucide-react'
 import DriftScore from '@/components/DriftScore'
 import DriftGrid from '@/components/DriftGrid'
 import CorrectionPanel from '@/components/CorrectionPanel'
-import { DEMO_PROJECT } from '@/lib/demo-data'
-import type { DriftZone } from '@/lib/database.types'
+import GhostMode from '@/components/GhostMode'
+import { DEMO_PROJECT, DEMO_NOVUS_EVENTS } from '@/lib/demo-data'
+import type { DriftZone, Project } from '@/lib/database.types'
 
 interface AnalysisResult {
   score: number
@@ -17,6 +19,7 @@ interface AnalysisResult {
 }
 
 export default function AnalyzePage() {
+  const router = useRouter()
   const [spec, setSpec]             = useState('')
   const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState<string | null>(null)
@@ -27,6 +30,7 @@ export default function AnalyzePage() {
   const [saving, setSaving]         = useState(false)
   const [savedId, setSavedId]       = useState<string | null>(null)
   const [saveError, setSaveError]   = useState<string | null>(null)
+  const [ghostView, setGhostView]   = useState(false)
 
   async function handleAnalyze() {
     setError(null)
@@ -84,15 +88,62 @@ export default function AnalyzePage() {
     }
   }
 
+  async function handleSaveAndClose() {
+    if (!result) return
+    let id = savedId
+    if (!id) {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name:         projectName.trim() || 'New Analysis',
+          spec_content: spec,
+          drift_score:  result.score,
+          zones:        result.zones,
+        }),
+      })
+      const data = await res.json()
+      if (data.project_id) { id = data.project_id; setSavedId(id) }
+    }
+    router.push('/dashboard')
+  }
+
   function loadDemo() {
     setSpec(DEMO_PROJECT.spec_content ?? '')
     setError(null)
     setResult(null)
     setSavedId(null)
+    setGhostView(false)
   }
+
+  const previewProject: Project | null = result ? {
+    id:               savedId ?? 'preview',
+    user_id:          'preview',
+    name:             projectName.trim() || 'New Analysis',
+    novus_project_id: null,
+    spec_source:      'manual',
+    spec_content:     spec,
+    spec_url:         null,
+    drift_score:      result.score,
+    last_analyzed:    new Date().toISOString(),
+    created_at:       new Date().toISOString(),
+  } : null
 
   return (
     <div className="relative min-h-screen bg-slate-950 text-white">
+
+      {/* Ghost Mode full-screen overlay */}
+      {ghostView && previewProject && (
+        <div className="fixed inset-0 z-50">
+          <GhostMode
+            project={previewProject}
+            specContent={spec}
+            novusData={DEMO_NOVUS_EVENTS}
+            driftZones={result!.zones}
+            onSaveAndClose={handleSaveAndClose}
+          />
+        </div>
+      )}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-1/4 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-emerald-500/5 blur-[120px]" />
       </div>
@@ -153,6 +204,14 @@ export default function AnalyzePage() {
                     {result.featuresFound} feature{result.featuresFound !== 1 ? 's' : ''} detected
                   </p>
                 </div>
+
+                <button
+                  onClick={() => setGhostView(true)}
+                  className="group flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-500/30 bg-violet-500/8 py-4 text-sm font-semibold text-violet-300 shadow-lg shadow-black/20 transition-all duration-200 hover:border-violet-500/60 hover:bg-violet-500/15 hover:text-violet-200"
+                >
+                  <Maximize2 className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                  View in Ghost Mode
+                </button>
 
                 <div>
                   <div className="mb-4">
