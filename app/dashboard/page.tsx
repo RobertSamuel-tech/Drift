@@ -152,12 +152,11 @@ export default function DashboardPage() {
                   {/* Actions */}
                   <div className="flex items-center gap-2 py-3 pr-4">
                     <Link href={`/dashboard/${p.id}`}
-                      className="font-mono text-[9px] uppercase tracking-widest text-slate-600 transition-colors hover:text-emerald-400">
+                      className="border border-slate-700/60 bg-slate-800/60 px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest text-slate-400 transition-all hover:border-emerald-500/50 hover:bg-emerald-500/8 hover:text-emerald-400">
                       Ghost
                     </Link>
-                    <span className="text-slate-800">·</span>
                     <Link href={`/report/${p.id}`}
-                      className="font-mono text-[9px] uppercase tracking-widest text-slate-600 transition-colors hover:text-violet-400">
+                      className="border border-slate-700/60 bg-slate-800/60 px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest text-slate-400 transition-all hover:border-violet-500/50 hover:bg-violet-500/8 hover:text-violet-400">
                       Report
                     </Link>
                   </div>
