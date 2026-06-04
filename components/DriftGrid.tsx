@@ -22,11 +22,11 @@ export default function DriftGrid({ zones, onZoneClick }: Props) {
           whileTap={{ scale: 0.98 }}
           onClick={() => onZoneClick?.(zone)}
           className={[
-            'group relative cursor-pointer overflow-hidden rounded-2xl p-4',
-            'border-2 backdrop-blur-md',
-            'bg-slate-900/60',
-            'shadow-xl shadow-black/40',
-            'transition-shadow duration-200 hover:shadow-2xl hover:shadow-black/50',
+            'group relative cursor-pointer overflow-hidden p-4',
+            'border-2',
+            'bg-slate-900',
+            'shadow-md shadow-black/30',
+            'transition-all duration-150 hover:bg-slate-800/60 hover:shadow-lg hover:shadow-black/40',
             zone.drift_type === 'ghost' ? 'border-dashed' : '',
           ].join(' ')}
           style={{ borderColor: zone.color ?? '#6b7280' }}

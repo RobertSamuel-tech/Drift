@@ -16,10 +16,10 @@ export default function NovusFeed({ events }: Props) {
   const feed = events as FeedEvent[]
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-900/60 shadow-xl shadow-black/30 backdrop-blur-md">
+    <div className="flex h-full flex-col overflow-hidden border border-slate-700/60 bg-slate-900 shadow-md shadow-black/30">
 
       {/* Header */}
-      <div className="shrink-0 flex items-center justify-between border-b border-slate-800/60 bg-slate-950/40 px-4 py-3">
+      <div className="shrink-0 flex items-center justify-between border-b border-slate-800/60 bg-slate-950/60 px-4 py-2">
         <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
           Novus Events
         </p>

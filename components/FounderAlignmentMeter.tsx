@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import type { FounderAlignment } from '@/lib/founder-alignment'
 import { formatCost } from '@/lib/cost-analysis'
-import { panel, metric, spring } from '@/components/ui/drift-theme'
+import { metric, spring } from '@/components/ui/drift-theme'
 
 // ─── colour palette keyed on regretIndex ─────────────────────────────────────
 function severityColors(regret: number) {
@@ -108,10 +108,10 @@ export default function FounderAlignmentMeter({
   return (
     <div>
       {/* ── Main meter + summary card ──────────────────────────────────── */}
-      <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
+      <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
 
-        {/* SVG meter */}
-        <div className={`shrink-0 rounded-2xl border border-slate-700/50 bg-slate-900/60 p-4 shadow-2xl shadow-black/40 backdrop-blur-md`}>
+        {/* SVG meter — command-center panel */}
+        <div className="shrink-0 border border-slate-700/60 bg-slate-900 shadow-lg shadow-black/40">
           <svg
             viewBox="0 0 260 210"
             width={260}
@@ -211,53 +211,60 @@ export default function FounderAlignmentMeter({
             </text>
           </svg>
 
-          {/* Severity badge below SVG */}
-          <div className="mt-1 flex justify-center">
-            <span className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${colors.ring} ${colors.text}`}>
+          {/* Severity readout */}
+          <div className="border-t border-slate-800/60 px-4 py-2 text-center">
+            <span className={`font-mono text-[9px] uppercase tracking-widest ${colors.text}`}>
               {data.severity}
             </span>
           </div>
         </div>
 
-        {/* Summary card */}
+        {/* Summary panel */}
         <motion.div
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.55, ...spring.panel }}
-          className={`flex-1 rounded-2xl border p-6 backdrop-blur-md shadow-xl shadow-black/30 ${colors.ring} ${colors.bg}`}
+          transition={{ delay: 0.5, ...spring.panel }}
+          className={`flex-1 border border-slate-700/60 bg-slate-900 shadow-lg shadow-black/30`}
         >
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
-            Founder Alignment Index
-          </p>
-          <p className={`mb-4 text-5xl font-black tabular-nums leading-none ${colors.text}`}>
-            {data.alignmentIndex}%
-          </p>
-          <p className="mb-3 text-sm font-semibold leading-relaxed text-slate-200">
-            {data.summary}
-          </p>
-          {(ghostFeatures > 0 || overbuiltFeatures > 0) && (
-            <p className="mb-3 text-xs leading-relaxed text-slate-500">
-              {ghostFeatures > 0 && `${ghostFeatures} ghost feature${ghostFeatures !== 1 ? 's' : ''} consumed roadmap capacity with no measurable return. `}
-              {overbuiltFeatures > 0 && `${overbuiltFeatures} overbuilt feature${overbuiltFeatures !== 1 ? 's' : ''} received investment above their adoption level.`}
+          {/* Panel header */}
+          <div className="flex items-center gap-2 border-b border-slate-800/60 bg-slate-950/60 px-4 py-2">
+            <span className={`h-1.5 w-1.5 rounded-full ${colors.text.replace('text-', 'bg-')}`} />
+            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
+              Founder Alignment Index
+            </span>
+          </div>
+
+          <div className="p-5">
+            <p className={`mb-3 font-mono text-5xl font-black tabular-nums leading-none ${colors.text}`}>
+              {data.alignmentIndex}%
             </p>
-          )}
-          <p className="text-[10px] text-slate-600">
-            Generated from actual Novus-backed analysis.
-          </p>
+            <p className="mb-3 text-sm font-semibold leading-relaxed text-slate-200">
+              {data.summary}
+            </p>
+            {(ghostFeatures > 0 || overbuiltFeatures > 0) && (
+              <p className="mb-3 text-xs leading-relaxed text-slate-500">
+                {ghostFeatures > 0 && `${ghostFeatures} ghost feature${ghostFeatures !== 1 ? 's' : ''} consumed roadmap capacity with no measurable return. `}
+                {overbuiltFeatures > 0 && `${overbuiltFeatures} overbuilt feature${overbuiltFeatures !== 1 ? 's' : ''} received investment above their adoption level.`}
+              </p>
+            )}
+            <p className="font-mono text-[9px] uppercase tracking-widest text-slate-700">
+              Source: Novus-backed analysis
+            </p>
+          </div>
         </motion.div>
       </div>
 
-      {/* ── Metrics row ──────────────────────────────────────────────────── */}
-      <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* ── Metrics strip ────────────────────────────────────────────────── */}
+      <div className="mt-4 grid grid-cols-2 gap-px border border-slate-700/60 bg-slate-700/20 sm:grid-cols-4">
         {([
           { label: 'Ghost Features',        value: String(ghostFeatures),                    color: ghostFeatures > 0      ? 'text-red-400'    : 'text-slate-400' },
           { label: 'Overbuilt Features',    value: String(overbuiltFeatures),                color: overbuiltFeatures > 0  ? 'text-orange-400' : 'text-slate-400' },
           { label: 'Reality Concentration', value: `${concentrationScore}%`,                 color: concentrationScore > 70 ? 'text-amber-400' : 'text-emerald-400' },
           { label: 'Estimated Waste',       value: estimatedWaste > 0 ? formatCost(estimatedWaste) : '$0', color: estimatedWaste > 0 ? 'text-red-400' : 'text-slate-400' },
         ] as const).map(m => (
-          <div key={m.label} className={metric.card}>
-            <p className={`text-xl font-black tabular-nums ${m.color}`}>{m.value}</p>
-            <p className="mt-0.5 text-[10px] text-slate-600">{m.label}</p>
+          <div key={m.label} className="bg-slate-900 px-4 py-3">
+            <p className={`font-mono text-xl font-bold tabular-nums leading-none ${m.color}`}>{m.value}</p>
+            <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-slate-600">{m.label}</p>
           </div>
         ))}
       </div>
