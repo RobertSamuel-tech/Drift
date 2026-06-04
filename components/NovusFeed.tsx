@@ -28,7 +28,7 @@ export default function NovusFeed({ events }: Props) {
         <span className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-40" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(16,185,129,0.6)]" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
           </span>
           <span className="text-[10px] font-semibold text-emerald-500">Live</span>
         </span>
@@ -47,7 +47,7 @@ export default function NovusFeed({ events }: Props) {
               transition={{ delay: index * 0.05, duration: 0.3, ...spring.gentle }}
               className={[
                 'relative overflow-hidden rounded-xl border px-3 py-2.5',
-                'backdrop-blur-sm',
+                '',
                 event.avgPerSession > 0
                   ? 'border-slate-700/40 bg-slate-800/50'
                   : 'border-slate-800/40 bg-slate-900/40',

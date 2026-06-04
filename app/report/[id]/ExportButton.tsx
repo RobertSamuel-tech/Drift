@@ -89,7 +89,7 @@ export default function ExportButton({ projectName, score, analyzedAt, zones, ca
   return (
     <button
       onClick={download}
-      className="flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-900/60 px-6 py-3 text-sm font-semibold text-slate-300 backdrop-blur-sm transition-all hover:border-slate-500 hover:text-white"
+      className="flex items-center gap-2 border border-slate-700/60 bg-slate-900 px-6 py-3 text-sm font-semibold text-slate-300 transition-all hover:border-slate-600 hover:text-white"
     >
       <Download className="h-4 w-4" />
       Export as Markdown

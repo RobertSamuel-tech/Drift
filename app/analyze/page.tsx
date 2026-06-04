@@ -148,12 +148,12 @@ export default function AnalyzePage() {
         <div className="absolute -top-1/4 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-emerald-500/5 blur-[120px]" />
       </div>
 
-      <nav className="sticky top-0 z-50 flex items-center gap-4 border-b border-slate-800/60 bg-slate-950/80 px-6 py-4 backdrop-blur-xl">
+      <nav className="sticky top-0 z-50 flex items-center gap-4 border-b border-slate-700/60 bg-slate-950 px-6 py-4">
         <Link href="/" className="flex items-center gap-1.5 text-sm text-slate-400 transition-colors hover:text-white">
           <ArrowLeft className="h-4 w-4" /> Back
         </Link>
         <span className="text-slate-700">|</span>
-        <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-sm font-bold text-transparent">DRIFT</span>
+        <span className="text-sm font-bold text-[#FF8A1F]">DRIFT</span>
         <span className="text-sm text-slate-500">/ Analyze</span>
       </nav>
 
@@ -164,7 +164,7 @@ export default function AnalyzePage() {
             Paste a product spec or PRD and get an instant Drift Score with visual zone breakdown.
           </p>
 
-          <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-6 shadow-2xl shadow-black/30 backdrop-blur-sm">
+          <div className="border border-slate-700/60 bg-slate-900 p-6 shadow-lg shadow-black/40">
             <textarea
               value={spec}
               onChange={e => setSpec(e.target.value)}

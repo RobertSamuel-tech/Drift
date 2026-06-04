@@ -49,7 +49,7 @@ export default function HomePage() {
       {/* ── Top command bar ────────────────────────────────────────────────── */}
       <header className="flex h-12 items-center justify-between border-b border-slate-700/60 bg-slate-900 px-6">
         <div className="flex items-center gap-4">
-          <span className="font-mono text-sm font-bold text-emerald-400 tracking-widest">DRIFT</span>
+          <span className="font-mono text-sm font-bold text-[#FF8A1F] tracking-widest">DRIFT</span>
           <span className="h-3 w-px bg-slate-700" />
           <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-600">
             Product Intelligence Command Center

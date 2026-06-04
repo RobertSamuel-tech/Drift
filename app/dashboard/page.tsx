@@ -49,7 +49,7 @@ export default function DashboardPage() {
             <ArrowLeft className="h-3 w-3" /> HOME
           </Link>
           <span className="h-3 w-px bg-slate-700" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
+          <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#FF8A1F]">
             DRIFT
           </span>
           <span className="text-slate-700">/</span>

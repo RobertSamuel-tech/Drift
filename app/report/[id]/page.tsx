@@ -106,13 +106,13 @@ export default async function ReportPage({ params }: { params: { id: string } })
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Nav */}
-      <nav className="flex items-center justify-between border-b border-slate-800/60 bg-slate-950/80 px-8 py-4 backdrop-blur-xl">
+      <nav className="flex items-center justify-between border-b border-slate-700/60 bg-slate-950 px-8 py-4">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="flex items-center gap-1.5 text-sm text-slate-500 transition-colors hover:text-white">
             <ArrowLeft className="h-4 w-4" /> Dashboard
           </Link>
           <span className="text-slate-800">|</span>
-          <span className="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-sm font-extrabold text-transparent">DRIFT</span>
+          <span className="text-sm font-extrabold text-[#FF8A1F]">DRIFT</span>
           <span className="text-sm text-slate-600">/ Founder Report</span>
         </div>
         <Link href={`/dashboard/${params.id}`}
