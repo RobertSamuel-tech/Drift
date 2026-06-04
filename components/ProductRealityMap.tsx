@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Ghost, Star, AlertTriangle, ArrowRight, ArrowDown } from 'lucide-react'
 import type { RealityMap, RealityFeature } from '@/lib/reality-map'
+import { panel, metric, spring } from '@/components/ui/drift-theme'
 
 function featureStyle(f: RealityFeature) {
   if (f.driftType === 'ghost' || f.usageScore === 0)
@@ -54,9 +55,9 @@ export default function ProductRealityMap({ data }: Props) {
           { label: 'Dominant Feature',       value: data.dominantFeature,          color: 'text-white' },
           { label: 'Ghost Features',         value: String(ghostCount),            color: 'text-red-400' },
         ] as const).map(m => (
-          <div key={m.label} className="rounded-xl border border-slate-700/50 bg-slate-900/60 px-4 py-3">
+          <div key={m.label} className={metric.card}>
             <p className={`text-xl font-black tabular-nums ${m.color}`}>{m.value}</p>
-            <p className="text-[10px] text-slate-600">{m.label}</p>
+            <p className="mt-0.5 text-[10px] text-slate-600">{m.label}</p>
           </div>
         ))}
       </div>
@@ -67,8 +68,8 @@ export default function ProductRealityMap({ data }: Props) {
         {/* Left — Founder Intent */}
         <motion.div
           initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="flex-1 rounded-2xl border border-slate-700/50 bg-slate-900/60 p-5"
+          transition={{ duration: 0.5, ...spring.panel }}
+          className={`flex-1 p-5 ${panel.base}`}
         >
           <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Founder Intent</p>
           <p className="mb-4 text-base font-bold text-white">Intended Product</p>
@@ -93,8 +94,8 @@ export default function ProductRealityMap({ data }: Props) {
         {/* Right — User Reality */}
         <motion.div
           initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="flex-1 rounded-2xl border border-slate-700/50 bg-slate-900/60 p-5"
+          transition={{ duration: 0.5, ...spring.panel }}
+          className={`flex-1 p-5 ${panel.base}`}
         >
           <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">User Reality</p>
           <p className="mb-4 text-base font-bold text-white">Actual Product</p>
@@ -107,8 +108,8 @@ export default function ProductRealityMap({ data }: Props) {
       {/* Reality Summary */}
       <motion.div
         initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.65, duration: 0.45 }}
-        className="mt-5 rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5"
+        transition={{ delay: 0.6, ...spring.panel }}
+        className="mt-5 rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5 shadow-xl shadow-black/30 backdrop-blur-md"
       >
         <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-violet-500/70">Reality Summary</p>
         <p className="text-sm font-semibold leading-relaxed text-violet-100">{data.realitySummary}</p>

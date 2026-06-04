@@ -5,6 +5,7 @@ import { TrendingUp, Wrench, Trash2, ArrowRight, ArrowDown } from 'lucide-react'
 import type { RoadmapReallocationResult, RoadmapAction } from '@/lib/roadmap-reallocation'
 import type { DriftZone } from '@/lib/database.types'
 import { formatCost } from '@/lib/cost-analysis'
+import { panel, metric, spring } from '@/components/ui/drift-theme'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -143,8 +144,8 @@ export default function RoadmapReallocation({
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="mb-8 rounded-2xl border border-slate-700/50 bg-slate-900/60 p-5"
+        transition={{ duration: 0.4, ...spring.panel }}
+        className={`mb-8 p-5 ${panel.elevated}`}
       >
         <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Analysis</p>
         <p className="text-sm font-semibold leading-relaxed text-slate-200">{data.summary}</p>
@@ -157,8 +158,8 @@ export default function RoadmapReallocation({
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="flex-1 rounded-2xl border border-slate-700/50 bg-slate-900/60 p-5"
+          transition={{ duration: 0.5, ...spring.panel }}
+          className={`flex-1 p-5 ${panel.base}`}
         >
           <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Current Direction</p>
           <p className="mb-4 text-sm font-bold text-slate-300">Where sprint effort is going</p>
@@ -198,8 +199,8 @@ export default function RoadmapReallocation({
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="flex-1 rounded-2xl border border-slate-700/50 bg-slate-900/60 p-5"
+          transition={{ duration: 0.5, ...spring.panel }}
+          className={`flex-1 p-5 ${panel.base}`}
         >
           <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Recommended Direction</p>
           <p className="mb-4 text-sm font-bold text-slate-300">Where sprint effort should go</p>
@@ -247,8 +248,8 @@ export default function RoadmapReallocation({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 0.4 }}
-        className="mt-8 rounded-2xl border border-slate-700/50 bg-slate-900/60 p-6"
+        transition={{ delay: 0.75, ...spring.panel }}
+        className={`mt-8 p-6 ${panel.elevated}`}
       >
         <p className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
           Projected Roadmap Shift

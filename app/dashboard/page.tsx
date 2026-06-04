@@ -89,7 +89,7 @@ export default function DashboardPage() {
                 className="flex items-stretch gap-2"
               >
                 <Link href={`/dashboard/${p.id}`}
-                  className={`group flex flex-1 items-center justify-between rounded-2xl border bg-slate-900/60 p-5 shadow-lg shadow-black/20 backdrop-blur-sm transition-all duration-200 hover:bg-slate-800/60 ${scoreBorder(p.drift_score)}`}>
+                  className={`group flex flex-1 items-center justify-between rounded-2xl border bg-slate-900/60 p-5 shadow-xl shadow-black/30 backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:bg-slate-800/60 hover:shadow-2xl hover:shadow-black/50 ${scoreBorder(p.drift_score)}`}>
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-white group-hover:text-emerald-400 transition-colors">
                       {p.name}
@@ -100,7 +100,7 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="ml-4 shrink-0 text-right">
-                    <span className={`text-3xl font-bold tabular-nums ${scoreColor(p.drift_score)}`}>
+                    <span className={`text-3xl font-black tabular-nums tracking-tight ${scoreColor(p.drift_score)}`}>
                       {p.drift_score}
                     </span>
                     <p className="text-[10px] text-slate-600">drift score</p>

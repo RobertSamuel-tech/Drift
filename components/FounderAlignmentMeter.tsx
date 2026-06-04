@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import type { FounderAlignment } from '@/lib/founder-alignment'
 import { formatCost } from '@/lib/cost-analysis'
+import { panel, metric, spring } from '@/components/ui/drift-theme'
 
 // ─── colour palette keyed on regretIndex ─────────────────────────────────────
 function severityColors(regret: number) {
@@ -78,7 +79,7 @@ function AnimatedArc({ regret, stroke }: { regret: number; stroke: string }) {
       d={arcD}
       fill="none"
       stroke={stroke}
-      strokeWidth={10}
+      strokeWidth={13}
       strokeLinecap="round"
       strokeDasharray={circumference}
       style={{ strokeDashoffset: dashOffset } as React.CSSProperties}
@@ -110,7 +111,7 @@ export default function FounderAlignmentMeter({
       <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
 
         {/* SVG meter */}
-        <div className="shrink-0">
+        <div className={`shrink-0 rounded-2xl border border-slate-700/50 bg-slate-900/60 p-4 shadow-2xl shadow-black/40 backdrop-blur-md`}>
           <svg
             viewBox="0 0 260 210"
             width={260}
@@ -123,7 +124,7 @@ export default function FounderAlignmentMeter({
               d={arcPath(ARC_START, ARC_END)}
               fill="none"
               stroke="#1e293b"
-              strokeWidth={10}
+              strokeWidth={13}
               strokeLinecap="round"
             />
 
@@ -136,9 +137,9 @@ export default function FounderAlignmentMeter({
                   d={zoneArcPath(start, end)}
                   fill="none"
                   stroke={ZONE_COLORS[i]}
-                  strokeWidth={3}
+                  strokeWidth={4}
                   strokeLinecap="butt"
-                  opacity={0.18}
+                  opacity={0.22}
                 />
               )
             })}
@@ -222,8 +223,8 @@ export default function FounderAlignmentMeter({
         <motion.div
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.6, duration: 0.45 }}
-          className={`flex-1 rounded-2xl border p-6 ${colors.ring} ${colors.bg}`}
+          transition={{ delay: 0.55, ...spring.panel }}
+          className={`flex-1 rounded-2xl border p-6 backdrop-blur-md shadow-xl shadow-black/30 ${colors.ring} ${colors.bg}`}
         >
           <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
             Founder Alignment Index
@@ -254,7 +255,7 @@ export default function FounderAlignmentMeter({
           { label: 'Reality Concentration', value: `${concentrationScore}%`,                 color: concentrationScore > 70 ? 'text-amber-400' : 'text-emerald-400' },
           { label: 'Estimated Waste',       value: estimatedWaste > 0 ? formatCost(estimatedWaste) : '$0', color: estimatedWaste > 0 ? 'text-red-400' : 'text-slate-400' },
         ] as const).map(m => (
-          <div key={m.label} className="rounded-xl border border-slate-700/50 bg-slate-900/60 px-4 py-3">
+          <div key={m.label} className={metric.card}>
             <p className={`text-xl font-black tabular-nums ${m.color}`}>{m.value}</p>
             <p className="mt-0.5 text-[10px] text-slate-600">{m.label}</p>
           </div>
