@@ -47,83 +47,87 @@ export default function HomePage() {
     <div className="min-h-screen bg-slate-950 font-sans text-white">
 
       {/* ── Top command bar ────────────────────────────────────────────────── */}
-      <header className="flex h-12 items-center justify-between border-b border-slate-700/60 bg-slate-900 px-6">
+      <header className="flex h-12 items-center justify-between border-b border-slate-700/60 bg-slate-900 px-8">
         <div className="flex items-center gap-4">
           <span className="font-mono text-sm font-bold text-[#FF8A1F] tracking-widest">DRIFT</span>
           <span className="h-3 w-px bg-slate-700" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-slate-600">
+          {/* Phase 3 — increased header subtitle contrast */}
+          <span className="font-mono text-xs uppercase tracking-[0.2em] text-slate-400">
             Product Intelligence Command Center
           </span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <Link href="/dashboard"
-            className="px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-500 transition-colors hover:text-slate-300">
+            className="px-3 py-1.5 font-mono text-xs uppercase tracking-widest text-slate-400 transition-colors hover:text-slate-200">
             Archive
           </Link>
           <Link href="/ghost"
-            className="flex items-center gap-1.5 border border-slate-700/60 bg-slate-800/60 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-300 transition-all hover:border-emerald-500/40 hover:text-emerald-400">
+            className="flex items-center gap-1.5 border border-slate-700/60 bg-slate-800/60 px-4 py-1.5 font-mono text-xs uppercase tracking-widest text-slate-300 transition-all hover:border-emerald-500/40 hover:text-emerald-400">
             Live Demo <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </header>
 
-      {/* ── System status strip ────────────────────────────────────────────── */}
+      {/* ── System status strip — Phase 3: larger text, more contrast ──────── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.4 }}
-        className="flex items-center gap-6 border-b border-slate-800/60 bg-slate-950 px-6 py-2"
+        className="flex items-center gap-8 border-b border-slate-700/60 bg-slate-900/60 px-8 py-3"
       >
         {[
-          { label: 'NOVUS CONNECTED',          color: 'bg-emerald-400' },
-          { label: 'GPT-4o READY',             color: 'bg-emerald-400' },
-          { label: 'ANALYSIS ENGINE ONLINE',   color: 'bg-emerald-400' },
-          { label: 'DRIFT DETECTION ACTIVE',   color: 'bg-emerald-400' },
+          { label: 'NOVUS CONNECTED',         color: 'bg-emerald-400' },
+          { label: 'GPT-4o READY',            color: 'bg-emerald-400' },
+          { label: 'ANALYSIS ENGINE ONLINE',  color: 'bg-emerald-400' },
+          { label: 'DRIFT DETECTION ACTIVE',  color: 'bg-emerald-400' },
         ].map(s => (
-          <div key={s.label} className="flex items-center gap-1.5">
-            <span className="relative flex h-1.5 w-1.5">
+          <div key={s.label} className="flex items-center gap-2">
+            <span className="relative flex h-2 w-2">
               <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${s.color} opacity-40`} />
-              <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${s.color}`} />
+              <span className={`relative inline-flex h-2 w-2 rounded-full ${s.color}`} />
             </span>
-            <span className="font-mono text-[9px] uppercase tracking-widest text-slate-600">{s.label}</span>
+            <span className="font-mono text-xs uppercase tracking-widest text-slate-300">{s.label}</span>
           </div>
         ))}
       </motion.div>
 
-      <main className="mx-auto max-w-6xl space-y-6 p-6">
+      {/* Phase 1 — max-w-7xl, Phase 8 — tighter spacing */}
+      <main className="mx-auto max-w-7xl space-y-5 px-8 py-5">
 
-        {/* ── Title + CTA ───────────────────────────────────────────────────── */}
+        {/* ── Title + CTA — Phase 2: text-5xl hero ─────────────────────────── */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.35 }}
-          className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
+          className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
-            <h1 className="font-mono text-2xl font-bold tracking-wide text-white">
+            {/* Phase 2 — from text-2xl to text-5xl */}
+            <h1 className="font-mono text-5xl font-bold tracking-wide text-white leading-tight">
               PRODUCT INTELLIGENCE
             </h1>
-            <p className="mt-1 font-mono text-xs uppercase tracking-[0.18em] text-slate-500">
+            {/* Phase 2 — subtitle from text-slate-500 to text-slate-300 */}
+            <p className="mt-2 font-mono text-sm uppercase tracking-[0.18em] text-slate-300">
               Detect the gap between what you built and what users actually do.
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3">
             <Link
               href="/analyze"
-              className="flex items-center gap-2 bg-emerald-500 px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-widest text-slate-950 transition-all hover:bg-emerald-400"
+              className="flex items-center gap-2 bg-emerald-500 px-6 py-3 font-mono text-sm font-bold uppercase tracking-widest text-slate-950 transition-all hover:bg-emerald-400 min-h-[44px]"
             >
-              Initialize Analysis <ArrowRight className="h-3.5 w-3.5" />
+              Initialize Analysis <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/ghost"
-              className="flex items-center gap-2 border border-slate-700/60 px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-slate-400 transition-all hover:border-slate-500 hover:text-white"
+              className="flex items-center gap-2 border border-slate-600 px-6 py-3 font-mono text-sm uppercase tracking-widest text-slate-300 transition-all hover:border-slate-400 hover:text-white min-h-[44px]"
             >
               View Demo
             </Link>
           </div>
         </motion.div>
 
-        {/* ── Capability panels ─────────────────────────────────────────────── */}
+        {/* ── Capability panels — Phase 5: larger titles, padding, contrast ── */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -136,55 +140,58 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.25 + i * 0.07, duration: 0.35 }}
-              className={`bg-slate-900 p-5 ${cap.border}`}
+              className={`bg-slate-900 p-6 ${cap.border}`}
             >
-              <div className="mb-4 flex items-start justify-between">
-                <cap.icon className={`h-4 w-4 ${cap.color}`} />
-                <span className={`font-mono text-[9px] uppercase tracking-widest ${cap.color} opacity-60`}>
+              <div className="mb-5 flex items-start justify-between">
+                <cap.icon className={`h-5 w-5 ${cap.color}`} />
+                <span className={`font-mono text-xs uppercase tracking-widest ${cap.color} opacity-70`}>
                   {cap.id}
                 </span>
               </div>
-              <p className={`mb-2 font-mono text-xs font-bold uppercase tracking-[0.18em] ${cap.color}`}>
+              <p className={`mb-3 font-mono text-sm font-bold uppercase tracking-[0.18em] ${cap.color}`}>
                 {cap.title}
               </p>
-              <p className="text-sm leading-relaxed text-slate-400">{cap.desc}</p>
-              <p className={`mt-3 font-mono text-[9px] uppercase tracking-widest ${cap.color} opacity-50`}>
+              {/* Phase 5 — description from text-slate-400 to text-slate-300 */}
+              <p className="text-sm leading-relaxed text-slate-300">{cap.desc}</p>
+              <p className={`mt-4 font-mono text-xs uppercase tracking-widest ${cap.color} opacity-70`}>
                 {cap.stat}
               </p>
             </motion.div>
           ))}
         </motion.div>
 
-        {/* ── How it works — process strip ──────────────────────────────────── */}
+        {/* ── Analysis Pipeline — Phase 5: larger text, more padding ──────── */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.4 }}
           className="border border-slate-700/60 bg-slate-900"
         >
-          <div className="border-b border-slate-800/60 px-4 py-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
+          <div className="border-b border-slate-700/60 px-6 py-3">
+            <span className="font-mono text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
               Analysis Pipeline
             </span>
           </div>
           <div className="flex flex-col items-start gap-0 divide-y divide-slate-800/60 md:flex-row md:divide-x md:divide-y-0">
             {[
-              { step: '01', label: 'SPEC INPUT',        desc: 'Paste any PRD, README, or roadmap' },
+              { step: '01', label: 'SPEC INPUT',         desc: 'Paste any PRD, README, or roadmap' },
               { step: '02', label: 'FEATURE EXTRACTION', desc: 'Parse features + intended priorities' },
               { step: '03', label: 'NOVUS CORRELATION',  desc: 'Cross-reference actual usage events' },
               { step: '04', label: 'DRIFT SCORING',      desc: 'Compute 0–100 score per feature' },
               { step: '05', label: 'REPORT GENERATION',  desc: 'Roadmap reallocation + AI corrections' },
             ].map(p => (
-              <div key={p.step} className="flex-1 px-4 py-3">
-                <p className="font-mono text-[9px] uppercase tracking-widest text-slate-700">{p.step}</p>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-emerald-400/80">{p.label}</p>
-                <p className="mt-1 text-xs text-slate-500">{p.desc}</p>
+              <div key={p.step} className="flex-1 px-6 py-4">
+                {/* Phase 9 — step number from slate-700 to slate-500 */}
+                <p className="font-mono text-xs uppercase tracking-widest text-slate-500">{p.step}</p>
+                <p className="mt-1 font-mono text-xs font-semibold uppercase tracking-wider text-emerald-400">{p.label}</p>
+                {/* Phase 5 — description from text-slate-500 to text-slate-300 */}
+                <p className="mt-1.5 text-sm text-slate-300">{p.desc}</p>
               </div>
             ))}
           </div>
         </motion.div>
 
-        {/* ── System metrics row ────────────────────────────────────────────── */}
+        {/* ── System metrics — Phase 4: text-3xl, taller cards, bigger labels  */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -192,73 +199,81 @@ export default function HomePage() {
           className="grid grid-cols-5 gap-px border border-slate-700/60 bg-slate-700/20"
         >
           {SYSTEM_METRICS.map(m => (
-            <div key={m.label} className="bg-slate-900 px-4 py-3 text-center">
-              <p className={`font-mono text-xl font-bold tabular-nums leading-none ${m.color}`}>{m.value}</p>
-              <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-slate-600">{m.label}</p>
+            <div key={m.label} className="bg-slate-900 px-6 py-5 text-center">
+              {/* Phase 4 — from text-xl to text-3xl */}
+              <p className={`font-mono text-3xl font-bold tabular-nums leading-none ${m.color}`}>{m.value}</p>
+              {/* Phase 4 — from text-[9px] to text-sm */}
+              <p className="mt-2 font-mono text-xs uppercase tracking-widest text-slate-400">{m.label}</p>
             </div>
           ))}
         </motion.div>
 
-        {/* ── Drift types reference ─────────────────────────────────────────── */}
+        {/* ── Drift Classification Schema — Phase 6: higher contrast ──────── */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.55, duration: 0.4 }}
           className="border border-slate-700/60 bg-slate-900"
         >
-          <div className="border-b border-slate-800/60 px-4 py-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-slate-500">
+          <div className="border-b border-slate-700/60 px-6 py-3">
+            <span className="font-mono text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">
               Drift Classification Schema
             </span>
           </div>
-          <div className="divide-y divide-slate-800/40">
+          <div className="divide-y divide-slate-800/60">
             {[
-              { type: 'GHOST',         desc: 'Built as high-priority. Zero adoption. Engineering effort with no return.',       color: 'text-slate-400', dot: 'bg-slate-500' },
-              { type: 'OVERBUILT',     desc: 'Heavy investment. Users engage at a fraction of the expected rate.',              color: 'text-red-400',   dot: 'bg-red-500' },
+              { type: 'GHOST',         desc: 'Built as high-priority. Zero adoption. Engineering effort with no return.',       color: 'text-slate-300', dot: 'bg-slate-400' },
+              { type: 'OVERBUILT',     desc: 'Heavy investment. Users engage at a fraction of the expected rate.',              color: 'text-red-400',   dot: 'bg-red-500'   },
               { type: 'UNDERBUILT',    desc: 'Users seek it out. Spec treats it as low priority. Untapped growth.',             color: 'text-amber-400', dot: 'bg-amber-500' },
-              { type: 'MISUNDERSTOOD', desc: 'Users engage but not as designed. Intent and behavior diverged.',                 color: 'text-violet-400',dot: 'bg-violet-500' },
-              { type: 'ALIGNED',       desc: 'Spec priority and actual usage match. This is what product success looks like.',  color: 'text-emerald-400',dot: 'bg-emerald-500' },
+              { type: 'MISUNDERSTOOD', desc: 'Users engage but not as designed. Intent and behavior diverged.',                 color: 'text-violet-400',dot: 'bg-violet-500'},
+              { type: 'ALIGNED',       desc: 'Spec priority and actual usage match. This is what product success looks like.',  color: 'text-emerald-400',dot: 'bg-emerald-500'},
             ].map(d => (
-              <div key={d.type} className="flex items-center gap-4 px-4 py-2.5 hover:bg-slate-800/30 transition-colors">
-                <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${d.dot}`} />
-                <span className={`w-28 shrink-0 font-mono text-[10px] uppercase tracking-widest ${d.color}`}>{d.type}</span>
-                <span className="text-sm text-slate-500">{d.desc}</span>
+              <div key={d.type} className="flex items-center gap-5 px-6 py-4 hover:bg-slate-800/30 transition-colors">
+                <span className={`h-2 w-2 shrink-0 rounded-full ${d.dot}`} />
+                {/* Phase 6 — type label from text-[10px] to text-sm, text-zinc-200 */}
+                <span className={`w-36 shrink-0 font-mono text-xs font-semibold uppercase tracking-widest ${d.color}`}>{d.type}</span>
+                {/* Phase 6 — description from text-slate-500 to text-slate-300 */}
+                <span className="text-sm leading-relaxed text-slate-300">{d.desc}</span>
               </div>
             ))}
           </div>
         </motion.div>
 
-        {/* ── Demo prompt ───────────────────────────────────────────────────── */}
+        {/* ── Demo prompt — Phase 7: taller, bigger title, min-h button ─────── */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.4 }}
-          className="flex items-center justify-between border border-slate-700/60 bg-slate-900 px-5 py-4"
+          className="flex items-center justify-between border border-slate-700/60 bg-slate-900 px-6 py-5"
         >
-          <div className="flex items-center gap-3">
-            <Ghost className="h-4 w-4 text-slate-600" />
+          <div className="flex items-center gap-4">
+            {/* Phase 7 — Ghost icon from text-slate-600 to text-slate-400 */}
+            <Ghost className="h-6 w-6 shrink-0 text-slate-400" />
             <div>
-              <p className="font-mono text-xs font-bold uppercase tracking-wider text-slate-300">
+              {/* Phase 7 — title from text-xs to text-sm, better contrast */}
+              <p className="font-mono text-sm font-bold uppercase tracking-wider text-white">
                 TaskFlow Pro — Live Demo
               </p>
-              <p className="text-xs text-slate-600">
+              {/* Phase 7 — subtitle from text-slate-600 to text-slate-400 */}
+              <p className="mt-0.5 text-sm text-slate-400">
                 Ghost Mode · 5 features · Drift Score 21 · $80,000 estimated waste
               </p>
             </div>
           </div>
+          {/* Phase 7 — button with min-h-[42px] */}
           <Link
             href="/ghost"
-            className="flex items-center gap-1.5 border border-slate-700/60 px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-slate-400 transition-all hover:border-emerald-500/40 hover:text-emerald-400"
+            className="flex items-center gap-2 border border-slate-600 px-5 py-2.5 font-mono text-sm uppercase tracking-widest text-slate-300 transition-all hover:border-emerald-500/60 hover:text-emerald-400 min-h-[42px]"
           >
-            Open Analysis <ArrowRight className="h-3 w-3" />
+            Open Analysis <ArrowRight className="h-4 w-4" />
           </Link>
         </motion.div>
 
       </main>
 
-      {/* ── Footer ────────────────────────────────────────────────────────── */}
-      <footer className="mt-8 border-t border-slate-800/60 px-6 py-3 text-center">
-        <span className="font-mono text-[9px] uppercase tracking-widest text-slate-700">
+      {/* ── Footer — Phase 9: increase contrast ──────────────────────────── */}
+      <footer className="mt-4 border-t border-slate-700/60 px-8 py-4 text-center">
+        <span className="font-mono text-xs uppercase tracking-widest text-slate-500">
           DRIFT · Next.js 14 · Novus.ai · GPT-4o-mini · Supabase · 2025
         </span>
       </footer>
