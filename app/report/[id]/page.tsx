@@ -7,9 +7,11 @@ import { calculateWasteMetrics, getCostTheme, formatCost } from '@/lib/cost-anal
 import { buildFeatureLifecycle } from '@/lib/feature-lifecycle'
 import { buildRealityMap } from '@/lib/reality-map'
 import { calculateFounderAlignment } from '@/lib/founder-alignment'
+import { generateRoadmapReallocation } from '@/lib/roadmap-reallocation'
 import FeatureTimeline from '@/components/FeatureTimeline'
 import ProductRealityMap from '@/components/ProductRealityMap'
 import FounderAlignmentMeter from '@/components/FounderAlignmentMeter'
+import RoadmapReallocation from '@/components/RoadmapReallocation'
 import type { Project, DriftZone } from '@/lib/database.types'
 import type { FallbackCard } from '@/lib/fallback-cards'
 import ExportButton from './ExportButton'
@@ -93,6 +95,11 @@ export default async function ReportPage({ params }: { params: { id: string } })
     return acc
   }, [])
   const cards: FallbackCard[] = seenTypes.map(dt => getFallbackCard(dt))
+  const roadmapData = generateRoadmapReallocation({
+    driftZones:         zones,
+    correctionCards:    cards,
+    concentrationScore: realityData.concentrationScore,
+  })
   const summary   = founderSummary(zones)
   const analyzed  = p.last_analyzed ?? p.created_at
 
@@ -176,9 +183,21 @@ export default async function ReportPage({ params }: { params: { id: string } })
           <ProductRealityMap data={realityData} />
         </section>
 
+        {/* ROADMAP REALLOCATION */}
+        <section>
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">04 — Roadmap Reallocation</p>
+          <p className="mb-6 text-xs text-slate-600">What the roadmap says vs what user behavior suggests.</p>
+          <RoadmapReallocation
+            data={roadmapData}
+            driftZones={zones}
+            estimatedWaste={waste.estimatedCost}
+            wastedSprints={waste.wastedSprints}
+          />
+        </section>
+
         {/* FEATURE LIFECYCLE */}
         <section>
-          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">04 — Feature Lifecycle</p>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">05 — Feature Lifecycle</p>
           {lifecycleItems.length === 0 ? (
             <p className="text-sm text-slate-500">No features analysed yet.</p>
           ) : (
@@ -188,7 +207,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
 
         {/* GHOST FEATURES */}
         <section>
-          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">05 — Ghost Features</p>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">06 — Ghost Features</p>
           {ghosts.length === 0 ? (
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 text-sm text-emerald-400">
               No ghost features — all your builds are being used.
@@ -216,7 +235,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
 
         {/* ENGINEERING IMPACT */}
         <section>
-          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">06 — Engineering Impact</p>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">07 — Engineering Impact</p>
           <div className={`rounded-2xl border p-8 shadow-xl shadow-black/30 ${costTheme.border} ${costTheme.bg}`}>
             {waste.wastedFeatures === 0 ? (
               <p className="text-sm text-slate-400">No engineering waste detected — all built features are being used.</p>
@@ -254,7 +273,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
 
         {/* AI RECOMMENDATIONS */}
         <section>
-          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">07 — AI Recommendations</p>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">08 — AI Recommendations</p>
           {cards.length === 0 ? (
             <p className="text-sm text-slate-500">No recommendations — product is well-aligned.</p>
           ) : (
@@ -291,7 +310,7 @@ export default async function ReportPage({ params }: { params: { id: string } })
 
         {/* FOUNDER SUMMARY */}
         <section>
-          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">08 — Founder Summary</p>
+          <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-slate-600">09 — Founder Summary</p>
           <blockquote className="rounded-2xl border border-violet-500/20 bg-violet-500/5 px-8 py-7">
             <p className="text-xl font-semibold leading-relaxed text-violet-100 md:text-2xl">
               &ldquo;{summary}&rdquo;
