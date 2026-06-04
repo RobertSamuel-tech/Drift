@@ -118,7 +118,7 @@ export default function AnalyzePage() {
               value={spec}
               onChange={e => setSpec(e.target.value)}
               rows={10}
-              placeholder={'Paste your PRD, README, or product spec here…\n\nTip: include lines like "Feature: Dashboard" or "MUST HAVE: CSV export" for best results.'}
+              placeholder={'Paste your PRD, README, feature list, roadmap, or product specification...\n\nTip: include lines like "Feature: Dashboard (MUST HAVE)" or "- CSV export (MVP)" for best detection.'}
               className="w-full resize-none rounded-xl border border-slate-700/50 bg-slate-950/60 p-4 font-mono text-sm text-slate-300 placeholder-slate-600 outline-none transition-colors focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
             />
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

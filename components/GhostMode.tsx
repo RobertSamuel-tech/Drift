@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { ArrowLeft, LayoutDashboard } from 'lucide-react'
 import DriftScore from './DriftScore'
 import DriftGrid from './DriftGrid'
 import SpecViewer from './SpecViewer'
@@ -34,9 +36,22 @@ export default function GhostMode({ project, specContent, novusData, driftZones 
         transition={{ duration: 0.4 }}
         className="flex shrink-0 items-center justify-between border-b border-slate-800/80 bg-slate-950/95 px-8 py-3 shadow-xl shadow-black/30 backdrop-blur-xl"
       >
-        <div className="space-y-0.5">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">Ghost Mode</p>
-          <h1 className="text-xl font-bold tracking-tight text-white">{project.name}</h1>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5">
+            <Link href="/"
+              className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-500 transition-colors hover:bg-slate-800/60 hover:text-white">
+              <ArrowLeft className="h-3.5 w-3.5" /> Home
+            </Link>
+            <Link href="/dashboard"
+              className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs text-slate-500 transition-colors hover:bg-slate-800/60 hover:text-white">
+              <LayoutDashboard className="h-3.5 w-3.5" /> Dashboard
+            </Link>
+          </div>
+          <div className="h-4 w-px bg-slate-800" />
+          <div className="space-y-0.5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">Ghost Mode</p>
+            <h1 className="text-xl font-bold tracking-tight text-white">{project.name}</h1>
+          </div>
         </div>
         <DriftScore score={project.drift_score} />
       </motion.header>

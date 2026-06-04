@@ -80,7 +80,7 @@ export default function HomePage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15, duration: 0.4 }}
-          className="mb-7 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/8 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400"
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/8 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-400"
         >
           <motion.span
             className="h-1.5 w-1.5 rounded-full bg-emerald-400"
@@ -88,6 +88,21 @@ export default function HomePage() {
             transition={{ duration: 2, repeat: Infinity }}
           />
           Powered by Novus.ai · GPT-4o-mini
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22, duration: 0.4 }}
+          className="mb-7 inline-flex items-center gap-3 rounded-xl border border-slate-700/50 bg-slate-900/60 px-4 py-2 text-xs backdrop-blur-sm"
+        >
+          <span className="font-semibold text-slate-300">LIVE ANALYSIS</span>
+          <span className="text-slate-700">·</span>
+          <span className="text-slate-500">PRD</span>
+          <span className="text-slate-700">→</span>
+          <span className="text-slate-500">Drift Detection</span>
+          <span className="text-slate-700">→</span>
+          <span className="text-slate-500">AI Recommendations</span>
         </motion.div>
 
         <motion.h1
@@ -109,8 +124,7 @@ export default function HomePage() {
           transition={{ delay: 0.4, duration: 0.5 }}
           className="mb-10 max-w-[480px] text-base leading-relaxed text-slate-400 md:text-lg"
         >
-          Detect the gap between what you built and what users actually do.
-          Fix drift before it kills your product.
+          Analyze your own product or explore a sample project.
         </motion.p>
 
         <motion.div
@@ -120,17 +134,17 @@ export default function HomePage() {
           className="flex flex-col gap-3 sm:flex-row"
         >
           <Link
-            href="/ghost"
+            href="/analyze"
             className="group inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-8 py-3.5 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-500/25 transition-all duration-200 hover:bg-emerald-400 hover:shadow-[0_0_32px_rgba(52,211,153,0.4)]"
           >
-            Try Ghost Mode
+            Create New Analysis
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
           <Link
             href="/ghost"
             className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-700/80 bg-slate-900/50 px-8 py-3.5 text-sm font-semibold text-slate-300 backdrop-blur-sm transition-all duration-200 hover:border-slate-500 hover:text-white"
           >
-            Analyze a Product
+            View Demo Project
           </Link>
         </motion.div>
 
@@ -140,7 +154,7 @@ export default function HomePage() {
           transition={{ delay: 1, duration: 0.6 }}
           className="mt-5 text-xs text-slate-700"
         >
-          No sign-up required · Demo data preloaded
+          No sign-up required · Paste any PRD and get results in seconds
         </motion.p>
 
         <motion.div
