@@ -1,375 +1,144 @@
-# DRIFT — The Product Intent Tracker
+# DRIFT
+
+### Product Intelligence Command Center
 
 > *"You built what you planned. Users adopted something else entirely."*
 
-[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8?logo=tailwind-css)](https://tailwindcss.com)
-[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?logo=supabase)](https://supabase.com)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-12-black?logo=framer)](https://www.framer.com/motion/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?logo=next.js&logoColor=white)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38bdf8?logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?logo=supabase&logoColor=white)](https://supabase.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-DRIFT is a product analytics tool that compares your original product specification against real user behavior from **Novus.ai** to produce a **Drift Score** — a single number measuring how far your shipped product has traveled from founder intent.
+---
+
+## What is Drift?
+
+Drift is a **product intelligence tool** for founders and product teams. It compares your original product specification against real user behavior data from [Novus.ai](https://novus.ai) and produces a single signal — the **Drift Score** — that measures how far your shipped product has traveled from your original intent.
+
+Paste a spec. Get a score. See exactly which features are haunting your product.
+
+---
+
+## What Makes Drift Different
+
+Most analytics tools tell you what users are doing. Drift tells you **where they diverged from what you intended**.
+
+| Other Tools | Drift |
+|---|---|
+| Show you usage metrics | Cross-reference metrics against your spec |
+| Require event tagging by engineers | Works from plain-text PRDs and roadmaps |
+| Produce dashboards you interpret yourself | Produces a scored, prioritized action plan |
+| Show what happened | Show the gap between intent and reality |
+
+Drift introduces five classifications that no general-purpose analytics tool exposes:
+
+- **Ghost** — Built as high-priority. Zero user adoption. Engineering effort with no return.
+- **Overbuilt** — Heavy investment. Users engage at a fraction of the expected rate.
+- **Underbuilt** — Users seek it out. Your spec treats it as low priority. Untapped growth.
+- **Misunderstood** — Users engage, but not as designed. Intent and behavior diverged.
+- **Aligned** — Spec priority and actual usage match. This is what success looks like.
+
+---
+
+## Core Features
+
+**Drift Score Engine**
+A single 0–100 signal computed from the gap between your spec's priority declarations and actual Novus usage data. Below 50 means your product is haunted. 100 means users behave exactly as you intended.
+
+**Ghost Mode**
+A three-pane command center showing your Product Spec, Drift Zones, and live Novus event feed side by side. Click any zone to open an AI correction panel with a user story reframe, copy rewrite, and mockup direction.
+
+**Founder Report**
+A nine-section executive report covering the Product Reality Map, Top Risks, Roadmap Reallocation (Invest / Improve / Remove), Feature Lifecycle stages, Engineering Waste estimate, and AI Recommendations — all derived from a single spec paste.
+
+**Roadmap Reallocation**
+Drift doesn't just tell you what's broken. It tells you where to move your engineering capacity: which features to invest in, which to improve, and which to remove from active development — with confidence scores and plain-English evidence.
+
+**Engineering Waste Calculator**
+Ghost and overbuilt features are converted into estimated sprint cost. A 5-engineer team building a ghost feature at high priority represents real, recoverable loss. Drift surfaces it.
+
+**AI Correction Cards**
+Powered by GPT-4o-mini via OpenRouter. For each drift zone, Drift generates a correction card with a product framing rewrite, a copy suggestion, and a mockup direction — ready to hand to design or engineering.
+
+**Session-First Explore Flow**
+Analysis results are temporary by default. Explore Ghost Mode, the full Founder Report, and AI corrections without saving anything. Save to your archive only when you're ready.
 
 ---
 
 ## Architecture
 
-```
-  ┌──────────────────────────────────────────────────────────────────┐
-  │                         DRIFT Platform                           │
-  │                                                                  │
-  │  Founder pastes spec (PRD / README / roadmap)                    │
-  │          │                                                       │
-  │          ▼                                                       │
-  │  ┌───────────────┐   POST /api/analyze    ┌──────────────────┐  │
-  │  │  /analyze     │ ─────────────────────▶ │  Analysis Engine │  │
-  │  │  (Client)     │ ◀───── DriftZone[] ─── │                  │  │
-  │  └───────┬───────┘                        │  extractFeatures │  │
-  │          │  Save                          │  calculateDrift  │  │
-  │          ▼                                │  classifyType    │  │
-  │  ┌───────────────┐                        └──────────────────┘  │
-  │  │  Supabase     │                                 │            │
-  │  │  PostgreSQL   │ ◀─── persist zones/projects ───┘            │
-  │  │               │                                              │
-  │  │  projects     │                                              │
-  │  │  drift_zones  │                                              │
-  │  └───────┬───────┘                                              │
-  │          │  Load on report                                      │
-  │          ▼                                                       │
-  │  ┌────────────────────────────────────────────────────────────┐ │
-  │  │                    lib/  (pure TypeScript)                  │ │
-  │  │                                                            │ │
-  │  │  drift-algorithm      →  Drift Score (0–100)               │ │
-  │  │  reality-map          →  Founder Intent vs User Reality     │ │
-  │  │  founder-alignment    →  Alignment Index + Regret Index     │ │
-  │  │  feature-lifecycle    →  Ghost / Ignored / Partial / Core   │ │
-  │  │  cost-analysis        →  Engineering waste → $              │ │
-  │  │  roadmap-reallocation →  Remove / Improve / Invest actions  │ │
-  │  └───────────────────────────┬────────────────────────────────┘ │
-  │                              │                                   │
-  │          ┌───────────────────┼───────────────────┐              │
-  │          ▼                   ▼                   ▼              │
-  │  ┌──────────────┐   ┌─────────────────┐  ┌──────────────────┐  │
-  │  │  Novus.ai    │   │  /report/[id]   │  │  OpenRouter      │  │
-  │  │              │   │                 │  │  GPT-4o-mini     │  │
-  │  │  Event data  │   │  01 Exec Summary│  │                  │  │
-  │  │  Usage scores│   │  02 Top Risks   │  │  POST /api/correct│ │
-  │  │  Live feed   │   │  03 Reality Map │  │  Correction cards│  │
-  │  └──────────────┘   │  04 Roadmap     │  └──────────────────┘  │
-  │                     │  05 Lifecycle   │                         │
-  │                     │  06 Ghost Feat. │                         │
-  │                     │  07 Eng. Impact │                         │
-  │                     │  08 AI Recs     │                         │
-  │                     │  09 Summary     │                         │
-  │                     └─────────────────┘                         │
-  └──────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Data Flow
+Drift is a full-stack Next.js 14 application built on the App Router with server components for data-intensive pages and client components for interactive exploration.
 
 ```
-  Spec Text (raw string)
-       │
-       │  extractFeaturesFromSpec()
-       ▼
-  SpecFeature[]  ──────────────────────────────────────┐
-  { name, priority, mentions }                         │
-       │                                               │
-       │  + Novus events (avgPerSession)               │
-       │                                               │
-       ▼                                               ▼
-  calculateDriftScore()                      classifyDriftType()
-       │                                               │
-       ▼                                               ▼
-  score: number (0–100)                   DriftZone[]
-                                          { feature_name,
-                                            intended_priority,
-                                            actual_usage_score,
-                                            drift_type }
-                                                       │
-               ┌───────────────────────────────────────┤
-               │               │               │       │
-               ▼               ▼               ▼       ▼
-        buildRealityMap  buildFeatureLifecycle  │  generateRoadmapReallocation
-               │               │               │       │
-               ▼               ▼               ▼       ▼
-        RealityMap       LifecycleItem[]  calculateWasteMetrics
-               │                               │
-               ▼                               ▼
-        calculateFounderAlignment ◀── concentrationScore
-               │
-               ▼
-        FounderAlignment
-        { alignmentIndex, regretIndex, severity, summary }
+┌─────────────────────────────────────────────────────────┐
+│                      Client                             │
+│                                                         │
+│   /analyze      →   paste spec, explore results         │
+│   /ghost/[id]   →   three-pane investigation view       │
+│   /report/[id]  →   nine-section founder report         │
+│   /dashboard    →   saved analysis archive              │
+└──────────────────┬──────────────────────────────────────┘
+                   │ HTTP
+┌──────────────────▼──────────────────────────────────────┐
+│                   Next.js API Routes                     │
+│                                                         │
+│   /api/analyze   →   extract features + score spec      │
+│   /api/correct   →   generate AI correction card        │
+│   /api/projects  →   read / write saved analyses        │
+└────────┬──────────────────────┬───────────────────────┬─┘
+         │                      │                       │
+┌────────▼──────┐   ┌───────────▼─────────┐   ┌────────▼────────┐
+│  Supabase     │   │  Novus.ai           │   │  OpenRouter     │
+│  PostgreSQL   │   │                     │   │  GPT-4o-mini    │
+│               │   │  Real user events   │   │                 │
+│  projects     │   │  Usage scores       │   │  Correction     │
+│  drift_zones  │   │  Live feed          │   │  card gen       │
+└───────────────┘   └─────────────────────┘   └─────────────────┘
 ```
 
----
-
-## The Five Drift Types
-
-| Type | Condition | What it means |
-|------|-----------|---------------|
-| **Ghost** | `priority=high`, `usage=0` | Built with priority. Zero user adoption. Engineering effort, no return. |
-| **Overbuilt** | `priority=high`, `usage<20` | Heavy investment, minimal adoption. Users don't value it the way you do. |
-| **Underbuilt** | `priority=low`, `usage>80` | Users seek it out. Your spec ignores it. Untapped growth vector. |
-| **Misunderstood** | `priority=medium`, `usage>50` | Users engage, but not as designed. Intent and behavior diverged. |
-| **Aligned** | usage ≈ expected | Spec priority and actual usage match. This is what success looks like. |
-
----
-
-## Scoring Algorithms
-
-### Drift Score
-
-```
-weight        = { high: 3, medium: 2, low: 1 }
-expectedUsage = { high: 80, medium: 50, low: 20 }
-
-featureDrift  = |expectedUsage[priority] − actualUsageScore| × weight
-totalDrift    = Σ featureDrift
-maxDrift      = Σ (100 × weight)
-
-driftScore    = round(100 − (totalDrift / maxDrift) × 100)
-```
-
-### Founder Alignment Index
-
-```
-alignmentIndex = driftScore
-               − (ghostFeatures    × 8)
-               − (overbuiltFeatures × 5)
-               − (10  if concentrationScore > 70)
-               − (15  if concentrationScore > 85)
-               clamped to [0, 100]
-
-regretIndex    = 100 − alignmentIndex
-```
-
-| Regret Index | Severity |
-|---|---|
-| 0 – 25 | Aligned |
-| 26 – 50 | Concern |
-| 51 – 75 | High Risk |
-| 76 – 100 | Critical Misalignment |
-
-### Reality Concentration
-
-```
-concentrationScore = round((topFeatureUsage / totalUsage) × 100)
-```
-
-> 70% → "You are operating a single-feature product."
-> 50% → "Most user value comes from a small portion of the roadmap."
-
-### Roadmap Reallocation
-
-```
-INVEST  →  top 20% by usage AND usageScore ≥ 60     confidence: 85–97%
-REMOVE  →  drift_type = ghost AND usageScore = 0     confidence: 90–95%
-IMPROVE →  usageScore > 50 OR drift_type = underbuilt confidence: 75–95%
-```
-
-No feature appears in two buckets. Summary cites actual feature names.
-
-### Feature Lifecycle Stages
-
-```
-usageScore = 0        →  Ghost           (built, never adopted)
-usageScore 1–19       →  Ignored         (built, rarely touched)
-usageScore 20–59      →  Partial Adoption (growing, not dominant)
-usageScore 60–100     →  Core Product    (users depend on it)
-```
-
-### Engineering Waste
-
-```
-sprintWeight = { high: 1, medium: 0.5, low: 0.25 }
-wastedSprints = Σ sprintWeight  (ghost + overbuilt features only)
-wastedDays    = wastedSprints × 10 days × 5 engineers
-estimatedCost = wastedDays × $800/day
-```
-
----
-
-## Report Sections
-
-| # | Section | What it shows |
-|---|---------|---------------|
-| 01 | **Executive Summary** | Founder Alignment Meter — radial SVG KPI with Regret Index and four severity zones |
-| 02 | **Top Risks** | Three highest-risk drift zones with plain-English business cost |
-| 03 | **Product Reality Map** | Side-by-side: Founder Intent (by priority) vs User Reality (by usage) |
-| 04 | **Roadmap Reallocation** | Invest / Improve / Remove actions with confidence scores and evidence |
-| 05 | **Feature Lifecycle** | Every feature's journey from spec to Ghost / Ignored / Partial / Core |
-| 06 | **Ghost Features** | Zero-adoption features with priority context |
-| 07 | **Engineering Impact** | Wasted sprints and dollar estimate from ghost + overbuilt features |
-| 08 | **AI Recommendations** | Correction cards: user story reframe, copy rewrite, mockup direction |
-| 09 | **Founder Summary** | One-paragraph plain-English summary citing actual features |
-
----
-
-## Ghost Mode
-
-Three-pane investigation layout at `/ghost` (demo) or `/dashboard/[id]`:
-
-```
-┌─────────────────────┬────────────────────────┬──────────────────────┐
-│   PRODUCT SPEC      │     DRIFT ZONES         │   NOVUS EVENTS       │
-│                     │                         │                      │
-│  # TaskFlow Pro     │  ┌──────────┐ ┌───────┐ │  ● Dashboard         │
-│                     │  │Dashboard │ │Kanban │ │    Count: 0  Avg: 0  │
-│  * Dashboard (MUST) │  │  Ghost   │ │ Over- │ │                      │
-│  * CSV Export (MUST)│  │  0/100   │ │ built │ │  ● Kanban Board      │
-│  * Team collab      │  └──────────┘ │10/100 │ │    Count: 12 Avg: 1  │
-│  * Dark mode (NICE) │               └───────┘ │                      │
-│  * Custom emoji     │  ┌──────────┐           │  ● CSV Export        │
-│                     │  │CSV Export│           │    Count: 240 Avg: 6 │
-│                     │  │ Misunder-│           │                      │
-│                     │  │ stood    │           │  ● Dark Mode         │
-│                     │  │ 60/100   │           │    Count: 0  Avg: 0  │
-└─────────────────────┴────────────────────────┴──────────────────────┘
-     GHOST FEATURES: 2   EST. WASTE: $80,000   DRIFT SCORE: 21
-```
-
-Click any zone to open the AI correction panel (slide-out) with:
-- User story reframe
-- Copy rewrite suggestion
-- Mockup direction
+All report computations (Reality Map, Alignment Index, Roadmap Reallocation, Feature Lifecycle, Engineering Waste) run as pure TypeScript functions — no external inference, no black box. Session-mode analysis runs entirely client-side from `sessionStorage` with no database writes until the user explicitly saves.
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Framework | Next.js 14 App Router | SSR pages + API routes |
-| Language | TypeScript 5 | End-to-end type safety |
-| Styling | Tailwind CSS 3 | Utility-first design system |
-| Animations | Framer Motion 12 | SVG meters, slide-ins, staggered reveals |
-| Database | Supabase (PostgreSQL + RLS) | Projects, drift zones, correction cards |
-| AI | OpenRouter → GPT-4o-mini | Correction card generation |
-| Analytics | Novus.ai | Real user event tracking + usage scores |
+| Layer | Technology | Role |
+|---|---|---|
+| Framework | Next.js 14 (App Router) | Server components, API routes, file-based routing |
+| Language | TypeScript 5 | End-to-end type safety across all layers |
+| Styling | Tailwind CSS 3 | Utility-first design system, cyberpunk command-center aesthetic |
+| Animation | Framer Motion 12 | Score rings, panel transitions, staggered reveals |
+| Database | Supabase (PostgreSQL) | Persistent project + drift zone storage |
+| AI | OpenRouter → GPT-4o-mini | Correction card generation per drift zone |
+| Analytics | Novus.ai | Real user event data and usage scores |
+| Icons | Lucide React | Consistent icon system throughout |
 
 ---
 
-## Project Structure
+## Application Routes
 
-```
-drift/
-│
-├── app/
-│   ├── page.tsx                    # Landing page
-│   ├── analyze/page.tsx            # Paste spec → instant drift analysis
-│   ├── dashboard/page.tsx          # Saved analyses list
-│   ├── dashboard/[id]/page.tsx     # Ghost Mode for a saved project
-│   ├── report/[id]/
-│   │   ├── page.tsx                # Full Founder Report (9 sections)
-│   │   └── ExportButton.tsx        # Markdown export client component
-│   ├── ghost/page.tsx              # Demo Ghost Mode (no login required)
-│   └── api/
-│       ├── analyze/route.ts        # POST: extract features + drift score
-│       ├── correct/route.ts        # POST: generate AI correction cards
-│       ├── projects/route.ts       # GET: list | POST: save analysis
-│       └── health/route.ts         # GET: environment variable check
-│
-├── components/
-│   ├── FounderAlignmentMeter.tsx   # 330° SVG radial meter, Regret vs Alignment
-│   ├── ProductRealityMap.tsx       # Founder Intent vs User Reality columns
-│   ├── RoadmapReallocation.tsx     # Invest/Improve/Remove recommendation cards
-│   ├── FeatureTimeline.tsx         # Feature lifecycle stage cards
-│   ├── GhostMode.tsx               # Three-pane spec / zones / Novus layout
-│   ├── DriftScore.tsx              # Animated circular score ring
-│   ├── DriftGrid.tsx               # Visual drift zone grid
-│   ├── SpecViewer.tsx              # Spec viewer with line highlighting
-│   ├── NovusFeed.tsx               # Live Novus event feed
-│   └── CorrectionPanel.tsx         # AI correction slide-out panel
-│
-├── lib/
-│   ├── drift-algorithm.ts          # Core: extractFeatures, calculateDrift, classify
-│   ├── reality-map.ts              # buildRealityMap() — intent vs reality + concentration
-│   ├── founder-alignment.ts        # calculateFounderAlignment() — Alignment + Regret Index
-│   ├── feature-lifecycle.ts        # buildFeatureLifecycle() — Ghost/Ignored/Partial/Core
-│   ├── cost-analysis.ts            # calculateWasteMetrics() — sprints → dollar estimate
-│   ├── roadmap-reallocation.ts     # generateRoadmapReallocation() — invest/improve/remove
-│   ├── analyze.ts                  # Shared analysis logic
-│   ├── fallback-cards.ts           # Offline correction cards by drift type
-│   ├── demo-data.ts                # Demo project: TaskFlow Pro
-│   ├── novus.ts                    # Novus.ai client
-│   ├── openai.ts                   # OpenRouter / OpenAI client
-│   ├── supabase.ts                 # Supabase client factory (anon + service role)
-│   └── database.types.ts           # TypeScript interfaces: Project, DriftZone, etc.
-│
-├── lib/*.test.ts                   # Pure TS test suites (tsx runner, no framework)
-│   ├── reality-map.test.ts         # 22 tests
-│   ├── feature-lifecycle.test.ts   # 19 tests
-│   ├── cost-analysis.test.ts       # 15 tests
-│   └── roadmap-reallocation.test.ts# 18 tests
-│
-└── supabase/
-    ├── schema.sql                  # Full PostgreSQL schema + RLS policies
-    └── migrations/                 # Incremental migration files
-```
-
----
-
-## Database Schema
-
-```sql
-projects (
-  id                uuid PRIMARY KEY,
-  user_id           uuid REFERENCES auth.users,
-  name              text,
-  novus_project_id  text,
-  spec_source       text,            -- 'github' | 'manual' | 'demo'
-  spec_content      text,
-  drift_score       integer,
-  last_analyzed     timestamptz,
-  created_at        timestamptz
-)
-
-drift_zones (
-  id                uuid PRIMARY KEY,
-  project_id        uuid REFERENCES projects,
-  feature_name      text,
-  intended_priority text,            -- 'high' | 'medium' | 'low'
-  actual_usage_score integer,        -- 0–100 from Novus
-  drift_type        text,            -- 'ghost' | 'overbuilt' | 'underbuilt' | 'misunderstood' | 'aligned'
-  novus_event_name  text,
-  position_x        integer,
-  position_y        integer,
-  created_at        timestamptz
-)
-
-correction_cards (
-  id                uuid PRIMARY KEY,
-  project_id        uuid REFERENCES projects,
-  drift_zone_id     uuid REFERENCES drift_zones,
-  title             text,
-  user_story        text,
-  copy_rewrite      text,
-  mockup_suggestion text,
-  priority          text,            -- 'critical' | 'high' | 'medium' | 'low'
-  ai_generated      boolean,
-  created_at        timestamptz
-)
-```
-
----
-
-## API Reference
-
-| Endpoint | Method | Body | Response |
-|----------|--------|------|----------|
-| `/api/analyze` | POST | `{ spec_content: string }` | `{ score, zones[], featuresFound }` |
-| `/api/correct` | POST | `{ zone_id, drift_type, feature_name }` | `{ card: CorrectionCard }` |
-| `/api/projects` | GET | — | `{ projects[] }` |
-| `/api/projects` | POST | `{ name, spec_content, drift_score, zones[] }` | `{ project_id }` |
-| `/api/health` | GET | — | `{ supabase, novus, openrouter }` status flags |
+| Route | Description |
+|---|---|
+| `/` | Landing page — system status, drift classification schema, live demo prompt |
+| `/analyze` | Paste a spec → instant Drift Score + zone breakdown → explore or save |
+| `/ghost` | Demo Ghost Mode — TaskFlow Pro with 5 features across all drift types |
+| `/ghost/[id]` | Ghost Mode for a saved analysis — spec, zones, and live Novus feed |
+| `/ghost/session` | Ghost Mode for an unsaved session — no database write required |
+| `/dashboard` | Analysis archive — all saved projects with scores and quick actions |
+| `/report/[id]` | Nine-section Founder Report for a saved analysis |
+| `/report/session` | Founder Report for an unsaved session — save from the banner |
 
 ---
 
 ## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- A [Supabase](https://supabase.com) project
+- A [Novus.ai](https://novus.ai) project
+- An [OpenRouter](https://openrouter.ai) API key
 
 ### 1. Clone
 
@@ -384,68 +153,65 @@ cd Drift
 npm install
 ```
 
-### 3. Environment variables
+### 3. Environment Variables
 
-Create `.env.local`:
+Create a `.env.local` file in the project root:
 
 ```env
 # Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 
 # Novus.ai
-NEXT_PUBLIC_NOVUS_API_KEY=your_novus_key
-NEXT_PUBLIC_NOVUS_PROJECT_ID=your_project_id
-NOVUS_API_KEY=your_novus_server_key
+NEXT_PUBLIC_NOVUS_API_KEY=your_novus_api_key
+NEXT_PUBLIC_NOVUS_PROJECT_ID=your_novus_project_id
+NOVUS_API_KEY=your_novus_server_api_key
 
 # OpenRouter
-OPENROUTER_API_KEY=your_openrouter_key
+OPENROUTER_API_KEY=your_openrouter_api_key
 OPENROUTER_MODEL=openai/gpt-4o-mini
 ```
 
-### 4. Database
+### 4. Database Setup
 
-Run `supabase/schema.sql` in your Supabase SQL Editor. For existing deployments:
+Run the schema in your Supabase SQL Editor:
 
 ```bash
-# Apply incremental migration (nullable user_id for anonymous saves)
+# Full schema — run once on a fresh project
+supabase/schema.sql
+```
+
+If you are updating an existing deployment, apply the incremental migration:
+
+```bash
 supabase/migrations/001_nullable_user_id.sql
 ```
 
 ### 5. Run
 
 ```bash
-npm run dev        # development
-npm run build      # production build
-npm run start      # production server
+npm run dev        # Development server → http://localhost:3000
+npm run build      # Production build
+npm run start      # Production server
 ```
-
-Open [http://localhost:3000](http://localhost:3000)
-
-### 6. Run tests
-
-```bash
-npx tsx lib/reality-map.test.ts
-npx tsx lib/feature-lifecycle.test.ts
-npx tsx lib/cost-analysis.test.ts
-npx tsx lib/roadmap-reallocation.test.ts
-```
-
-74 tests, no test framework required.
 
 ---
 
 ## Demo
 
-The app ships with **TaskFlow Pro** — a pre-built demo project showing all five drift types. No credentials required.
+Drift ships with **TaskFlow Pro** — a pre-built demo project that demonstrates all five drift types without requiring any credentials or database connection.
 
-| Route | What you see |
-|-------|-------------|
-| `/ghost` | Full Ghost Mode on live demo data: Dashboard (Ghost, 0/100), CSV Export (Misunderstood, 60/100), Kanban Board (Overbuilt, 10/100) |
-| `/analyze` | Paste any PRD → click **Load Demo Spec** for instant analysis |
-| `/dashboard` | Saved analyses list (requires Supabase) |
-| `/report/[id]` | Full 9-section Founder Report (requires a saved project) |
+Open [`/ghost`](http://localhost:3000/ghost) or click **View Demo** on the landing page.
+
+Demo features:
+- Dashboard widget — **Ghost** (0/100 usage, high priority)
+- CSV Export — **Misunderstood** (60/100 usage, used differently than intended)
+- Kanban Board — **Overbuilt** (10/100 usage, high investment)
+- Team Collaboration — **Underbuilt** (80/100 usage, low priority)
+- Dark Mode — **Aligned** (usage matches spec intent)
+
+**Estimated waste: $80,000 · Drift Score: 21 · 2 ghost features**
 
 ---
 

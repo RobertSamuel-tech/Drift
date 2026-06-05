@@ -17,6 +17,31 @@ export async function GET() {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const { id } = await request.json()
+    if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+    const supabase = createAdminClient()
+
+    const { error: zonesErr } = await supabase
+      .from('drift_zones')
+      .delete()
+      .eq('project_id', id)
+    if (zonesErr) return NextResponse.json({ error: zonesErr.message }, { status: 500 })
+
+    const { error: projErr } = await supabase
+      .from('projects')
+      .delete()
+      .eq('id', id)
+    if (projErr) return NextResponse.json({ error: projErr.message }, { status: 500 })
+
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    return NextResponse.json({ error: String(error) }, { status: 500 })
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = createAdminClient()

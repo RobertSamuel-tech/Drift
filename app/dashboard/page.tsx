@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Plus, Ghost, AlertTriangle, Clock, BarChart2, TrendingDown, Activity, ArrowRight } from 'lucide-react'
+import { ArrowLeft, Plus, Ghost, AlertTriangle, Clock, BarChart2, TrendingDown, Activity, ArrowRight, Trash2 } from 'lucide-react'
 
 interface ProjectRow {
   id: string
@@ -53,10 +53,27 @@ function MetricTile({
 }
 
 // ─── Analysis command card ─────────────────────────────────────────────────────
-function AnalysisCard({ p, index }: { p: ProjectRow; index: number }) {
+function AnalysisCard({ p, index, onDelete }: { p: ProjectRow; index: number; onDelete: (id: string) => void }) {
+  const [removing, setRemoving] = useState(false)
+
   const date = new Date(p.created_at).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
   })
+
+  async function handleRemove() {
+    if (!confirm(`Remove "${p.name}"? This cannot be undone.`)) return
+    setRemoving(true)
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: p.id }),
+      })
+      if (res.ok) onDelete(p.id)
+    } finally {
+      setRemoving(false)
+    }
+  }
 
   return (
     <motion.div
@@ -73,8 +90,18 @@ function AnalysisCard({ p, index }: { p: ProjectRow; index: number }) {
           </span>
           <h2 className="mt-1 truncate text-xl font-bold text-white">{p.name}</h2>
         </div>
-        <div className={`shrink-0 border px-3 py-1.5 font-mono text-xs uppercase tracking-widest ${scoreBg(p.drift_score)} ${scoreLabelColor(p.drift_score)}`}>
-          {scoreLabel(p.drift_score)}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className={`border px-3 py-1.5 font-mono text-xs uppercase tracking-widest ${scoreBg(p.drift_score)} ${scoreLabelColor(p.drift_score)}`}>
+            {scoreLabel(p.drift_score)}
+          </div>
+          <button
+            onClick={handleRemove}
+            disabled={removing}
+            title="Remove analysis"
+            className="flex items-center justify-center border border-slate-700/60 bg-slate-800/60 p-1.5 text-slate-500 transition-all hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-400 disabled:opacity-40"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
 
@@ -108,7 +135,7 @@ function AnalysisCard({ p, index }: { p: ProjectRow; index: number }) {
       {/* Actions */}
       <div className="mt-auto grid grid-cols-2 divide-x divide-slate-800/60 border-t border-slate-800/60">
         <Link
-          href={`/dashboard/${p.id}`}
+          href={`/ghost/${p.id}`}
           className="flex items-center justify-center gap-2 py-4 font-mono text-xs uppercase tracking-widest text-slate-400 transition-all hover:bg-emerald-500/8 hover:text-emerald-400"
         >
           <Ghost className="h-3.5 w-3.5" />
@@ -259,7 +286,7 @@ export default function DashboardPage() {
         {!loading && !error && projects.length > 0 && (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((p, i) => (
-              <AnalysisCard key={p.id} p={p} index={i} />
+              <AnalysisCard key={p.id} p={p} index={i} onDelete={id => setProjects(prev => prev.filter(x => x.id !== id))} />
             ))}
           </div>
         )}

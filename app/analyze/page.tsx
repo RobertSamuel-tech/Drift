@@ -4,13 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowLeft, Loader2, Sparkles, AlertCircle, Wand2, Save, CheckCircle, Maximize2 } from 'lucide-react'
+import { ArrowLeft, Loader2, Sparkles, AlertCircle, Wand2, Save, CheckCircle, Maximize2, BarChart2, ArrowRight } from 'lucide-react'
 import DriftScore from '@/components/DriftScore'
 import DriftGrid from '@/components/DriftGrid'
 import CorrectionPanel from '@/components/CorrectionPanel'
-import GhostMode from '@/components/GhostMode'
-import { DEMO_PROJECT, DEMO_NOVUS_EVENTS } from '@/lib/demo-data'
-import type { DriftZone, Project } from '@/lib/database.types'
+import { DEMO_PROJECT } from '@/lib/demo-data'
+import { setSession } from '@/lib/analysis-session'
+import type { DriftZone } from '@/lib/database.types'
 
 interface AnalysisResult {
   score: number
@@ -30,11 +30,11 @@ export default function AnalyzePage() {
   const [saving, setSaving]         = useState(false)
   const [savedId, setSavedId]       = useState<string | null>(null)
   const [saveError, setSaveError]   = useState<string | null>(null)
-  const [ghostView, setGhostView]   = useState(false)
 
   async function handleAnalyze() {
     setError(null)
     setResult(null)
+    setSavedId(null)
     setLoading(true)
     try {
       const res = await fetch('/api/analyze', {
@@ -63,6 +63,31 @@ export default function AnalyzePage() {
     setPanelOpen(true)
   }
 
+  function storeSession(r: AnalysisResult) {
+    setSession({
+      spec,
+      projectName: projectName.trim() || 'Unsaved Analysis',
+      score:        r.score,
+      zones:        r.zones,
+      featuresFound: r.featuresFound,
+      createdAt:    new Date().toISOString(),
+    })
+  }
+
+  function handleViewInGhost() {
+    if (!result) return
+    if (savedId) { router.push(`/ghost/${savedId}`); return }
+    storeSession(result)
+    router.push('/ghost/session')
+  }
+
+  function handleViewReport() {
+    if (!result) return
+    if (savedId) { router.push(`/report/${savedId}`); return }
+    storeSession(result)
+    router.push('/report/session')
+  }
+
   async function handleSave() {
     if (!result) return
     setSaveError(null)
@@ -72,10 +97,10 @@ export default function AnalyzePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name:        projectName.trim() || undefined,
+          name:         projectName.trim() || undefined,
           spec_content: spec,
-          drift_score: result.score,
-          zones:       result.zones,
+          drift_score:  result.score,
+          zones:        result.zones,
         }),
       })
       const data = await res.json()
@@ -88,62 +113,16 @@ export default function AnalyzePage() {
     }
   }
 
-  async function handleSaveAndClose() {
-    if (!result) return
-    let id = savedId
-    if (!id) {
-      const res = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name:         projectName.trim() || 'New Analysis',
-          spec_content: spec,
-          drift_score:  result.score,
-          zones:        result.zones,
-        }),
-      })
-      const data = await res.json()
-      if (data.project_id) { id = data.project_id; setSavedId(id) }
-    }
-    router.push('/dashboard')
-  }
-
   function loadDemo() {
     setSpec(DEMO_PROJECT.spec_content ?? '')
     setError(null)
     setResult(null)
     setSavedId(null)
-    setGhostView(false)
   }
-
-  const previewProject: Project | null = result ? {
-    id:               savedId ?? 'preview',
-    user_id:          'preview',
-    name:             projectName.trim() || 'New Analysis',
-    novus_project_id: null,
-    spec_source:      'manual',
-    spec_content:     spec,
-    spec_url:         null,
-    drift_score:      result.score,
-    last_analyzed:    new Date().toISOString(),
-    created_at:       new Date().toISOString(),
-  } : null
 
   return (
     <div className="relative min-h-screen bg-slate-950 text-white">
 
-      {/* Ghost Mode full-screen overlay */}
-      {ghostView && previewProject && (
-        <div className="fixed inset-0 z-50">
-          <GhostMode
-            project={previewProject}
-            specContent={spec}
-            novusData={DEMO_NOVUS_EVENTS}
-            driftZones={result!.zones}
-            onSaveAndClose={handleSaveAndClose}
-          />
-        </div>
-      )}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-1/4 left-1/2 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-emerald-500/5 blur-[120px]" />
       </div>
@@ -198,21 +177,46 @@ export default function AnalyzePage() {
           <AnimatePresence>
             {result && (
               <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: 'easeOut' }} className="mt-10 space-y-8">
-                <div className="flex flex-col items-center gap-2 rounded-2xl border border-slate-800/80 bg-slate-900/60 py-10 shadow-xl shadow-black/30">
+
+                {/* Score card + unsaved badge */}
+                <div className="flex flex-col items-center gap-3 rounded-2xl border border-slate-800/80 bg-slate-900/60 py-10 shadow-xl shadow-black/30">
                   <DriftScore score={result.score} />
-                  <p className="mt-2 text-xs text-slate-600">
+                  <p className="text-xs text-slate-600">
                     {result.featuresFound} feature{result.featuresFound !== 1 ? 's' : ''} detected
                   </p>
+                  {!savedId && (
+                    <span className="mt-1 flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/8 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-amber-400">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+                      Unsaved Session
+                    </span>
+                  )}
+                  {savedId && (
+                    <span className="mt-1 flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/8 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-emerald-400">
+                      <CheckCircle className="h-3 w-3" />
+                      Saved
+                    </span>
+                  )}
                 </div>
 
-                <button
-                  onClick={() => setGhostView(true)}
-                  className="group flex w-full items-center justify-center gap-2 rounded-2xl border border-violet-500/30 bg-violet-500/8 py-4 text-sm font-semibold text-violet-300 shadow-lg shadow-black/20 transition-all duration-200 hover:border-violet-500/60 hover:bg-violet-500/15 hover:text-violet-200"
-                >
-                  <Maximize2 className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-                  View in Ghost Mode
-                </button>
+                {/* Explore buttons */}
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={handleViewInGhost}
+                    className="group flex items-center justify-center gap-2 rounded-2xl border border-violet-500/30 bg-violet-500/8 py-4 text-sm font-semibold text-violet-300 shadow-lg shadow-black/20 transition-all duration-200 hover:border-violet-500/60 hover:bg-violet-500/15 hover:text-violet-200"
+                  >
+                    <Maximize2 className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                    View in Ghost Mode
+                  </button>
+                  <button
+                    onClick={handleViewReport}
+                    className="group flex items-center justify-center gap-2 rounded-2xl border border-slate-600/40 bg-slate-800/40 py-4 text-sm font-semibold text-slate-300 shadow-lg shadow-black/20 transition-all duration-200 hover:border-slate-500/60 hover:bg-slate-800/60 hover:text-white"
+                  >
+                    <BarChart2 className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                    View Report
+                  </button>
+                </div>
 
+                {/* Drift zones */}
                 <div>
                   <div className="mb-4">
                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
@@ -227,20 +231,26 @@ export default function AnalyzePage() {
                   </p>
                 </div>
 
+                {/* Save section */}
                 <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 shadow-xl shadow-black/20">
                   <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-600">
-                    Save Analysis
+                    Save to Dashboard
                   </p>
                   {savedId ? (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                      className="flex items-center justify-between gap-4">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                       <span className="flex items-center gap-2 text-sm text-emerald-400">
-                        <CheckCircle className="h-4 w-4" /> Analysis saved successfully
+                        <CheckCircle className="h-4 w-4" /> Analysis saved to Dashboard
                       </span>
-                      <Link href={`/dashboard/${savedId}`}
-                        className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-sm font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/20">
-                        View in Dashboard →
-                      </Link>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Link href="/dashboard"
+                          className="flex items-center justify-center gap-2 rounded-xl border border-slate-600/60 bg-slate-800/60 px-4 py-2.5 text-sm font-semibold text-slate-300 transition-all hover:border-slate-400 hover:text-white">
+                          <ArrowRight className="h-3.5 w-3.5" /> View Archive
+                        </Link>
+                        <Link href={`/report/${savedId}`}
+                          className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-400 transition-all hover:bg-emerald-500/20">
+                          <BarChart2 className="h-3.5 w-3.5" /> Open Report
+                        </Link>
+                      </div>
                     </motion.div>
                   ) : (
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -251,7 +261,7 @@ export default function AnalyzePage() {
                         className="flex-1 rounded-lg border border-slate-700/50 bg-slate-950/60 px-3 py-2 text-sm text-slate-300 placeholder-slate-600 outline-none focus:border-slate-500"
                       />
                       <button onClick={handleSave} disabled={saving}
-                        className="flex items-center justify-center gap-2 rounded-xl border border-slate-600/60 bg-slate-800/60 px-5 py-2 text-sm font-semibold text-slate-300 transition-all hover:border-slate-400 hover:text-white disabled:opacity-40">
+                        className="flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-5 py-2 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400 disabled:opacity-40">
                         {saving ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Saving…</> : <><Save className="h-3.5 w-3.5" /> Save to Dashboard</>}
                       </button>
                     </div>
@@ -262,6 +272,7 @@ export default function AnalyzePage() {
                     </p>
                   )}
                 </div>
+
               </motion.div>
             )}
           </AnimatePresence>
