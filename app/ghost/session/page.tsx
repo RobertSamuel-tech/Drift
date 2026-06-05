@@ -45,6 +45,8 @@ export default function GhostSessionPage() {
       specContent={specContent}
       novusData={DEMO_NOVUS_EVENTS}
       driftZones={zones}
+      backHref="/analyze"
+      backLabel="ANALYZE"
     />
   )
 }

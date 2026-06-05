@@ -18,6 +18,8 @@ interface Props {
   novusData:      NovusEvent[]
   driftZones:     DriftZone[]
   onSaveAndClose?: () => Promise<void>
+  backHref?:      string
+  backLabel?:     string
 }
 
 // Inline metric block — command-center header readout
@@ -80,6 +82,8 @@ export default function GhostMode({
   novusData,
   driftZones,
   onSaveAndClose,
+  backHref,
+  backLabel = 'BACK',
 }: Props) {
   const [selectedZone, setSelectedZone] = useState<DriftZone | null>(null)
   const [panelOpen, setPanelOpen]       = useState(false)
@@ -112,6 +116,12 @@ export default function GhostMode({
         {/* Left: breadcrumb + project */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1">
+            {backHref && (
+              <Link href={backHref}
+                className="flex items-center gap-1 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-500 transition-colors hover:text-slate-200">
+                <ArrowLeft className="h-3 w-3" /> {backLabel}
+              </Link>
+            )}
             <Link href="/"
               className="flex items-center gap-1 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-600 transition-colors hover:text-slate-300">
               <ArrowLeft className="h-3 w-3" /> HOME

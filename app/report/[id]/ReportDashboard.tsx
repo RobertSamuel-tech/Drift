@@ -252,105 +252,91 @@ export default function ReportDashboard({
 
       <div className="mx-auto max-w-[1800px] w-full space-y-3 px-8 py-5">
 
-        {/* ── SECTION 2: Reality Map (70%) + Right Column (30%) ────────── */}
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,7fr)_minmax(340px,3fr)]">
-
-          {/* Left — Product Reality Map */}
-          <div className="border border-slate-700/60 bg-slate-900 min-h-0">
-            <SectionHeader label="Product Reality Map" />
-            <div className="p-6">
-              <ProductRealityMap data={realityData} />
-            </div>
-          </div>
-
-          {/* Right — Intel column (sticky) */}
-          <div className="flex flex-col gap-4 self-start lg:sticky lg:top-6">
-
-            {/* Top Risks */}
-            <div className="border border-slate-700/60 bg-slate-900">
-              {/* Custom header with count */}
-              <div className="border-b border-slate-800/60 bg-slate-950/60 px-5 py-4">
-                <span className="font-mono text-xs uppercase tracking-[0.22em] text-slate-400">Top Risks</span>
-                {topRisks.length > 0 && (
-                  <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-slate-600">
-                    {topRisks.length} High Impact Issue{topRisks.length !== 1 ? 's' : ''}
-                  </p>
-                )}
-              </div>
-
-              {topRisks.length === 0 ? (
-                <p className="px-5 py-5 text-sm text-slate-500">No significant risks detected.</p>
-              ) : (
-                <div className="divide-y divide-slate-800/60">
-                  {topRisks.map(zone => (
-                    <div key={zone.id} className="px-5 py-5">
-                      {/* Type badge */}
-                      <div className={`mb-3 inline-flex items-center border-l-2 pl-2.5 ${DRIFT_TYPE_COLOR[zone.drift_type] ?? ''}`}>
-                        <span className="font-mono text-[10px] uppercase tracking-widest">{RISK_LABEL[zone.drift_type]}</span>
-                      </div>
-                      {/* Feature name — wraps, never clips */}
-                      <p className="mb-2 break-words text-base font-semibold leading-snug text-white">
-                        {zone.feature_name}
-                      </p>
-                      {/* Explanation */}
-                      <p className="mb-3 break-words text-sm leading-relaxed text-slate-400">
-                        {whyItMatters(zone)}
-                      </p>
-                      {/* Usage score */}
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[10px] uppercase tracking-widest text-slate-600">Usage</span>
-                        <span className={`font-mono text-sm font-bold tabular-nums ${
-                          zone.actual_usage_score === 0 ? 'text-red-400' :
-                          zone.actual_usage_score < 40  ? 'text-amber-400' : 'text-slate-300'
-                        }`}>
-                          {zone.actual_usage_score}/100
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+        {/* ── SECTION 2: Reality Map — unified card, 3-col grid inside ─── */}
+        <div className="border border-slate-700/60 bg-slate-900 overflow-hidden">
+          <SectionHeader label="Product Reality Map" />
+          <ProductRealityMap
+            data={realityData}
+            rightPanel={
+              <div className="xl:sticky xl:top-24">
+                {/* Top Risks header */}
+                <div className="border-b border-slate-800/60 bg-slate-950/60 px-5 py-4">
+                  <span className="font-mono text-xs uppercase tracking-[0.22em] text-slate-400">Top Risks</span>
+                  {topRisks.length > 0 && (
+                    <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-slate-600">
+                      {topRisks.length} High Impact Issue{topRisks.length !== 1 ? 's' : ''}
+                    </p>
+                  )}
                 </div>
-              )}
-            </div>
-
-            {/* Ghost Features */}
-            <div className="border border-slate-700/60 bg-slate-900">
-              <div className="border-b border-slate-800/60 bg-slate-950/60 px-5 py-4">
-                <span className="font-mono text-xs uppercase tracking-[0.22em] text-slate-400">Ghost Features</span>
-                <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-slate-600">
-                  {ghosts.length === 0 ? 'None detected' : `${ghosts.length} Unused Build${ghosts.length !== 1 ? 's' : ''}`}
-                </p>
-              </div>
-              {ghosts.length === 0 ? (
-                <div className="px-5 py-5 text-sm text-emerald-400">No ghost features — all builds are used.</div>
-              ) : (
-                <div>
+                {topRisks.length === 0 ? (
+                  <p className="px-5 py-5 text-sm text-slate-500">No significant risks detected.</p>
+                ) : (
                   <div className="divide-y divide-slate-800/60">
-                    {visGhosts.map(zone => (
-                      <div key={zone.id} className="flex items-start gap-3 px-5 py-4">
-                        <Ghost className="mt-0.5 h-4 w-4 shrink-0 text-red-500/60" />
-                        <div className="min-w-0 flex-1 overflow-hidden">
-                          <p className="break-words text-sm font-semibold leading-snug text-white">{zone.feature_name}</p>
-                          <p className="mt-1 text-xs text-slate-500">
-                            {zone.intended_priority} priority · <span className="font-mono text-red-400">{zone.actual_usage_score}/100</span>
-                          </p>
+                    {topRisks.map(zone => (
+                      <div key={zone.id} className="px-5 py-5">
+                        <div className={`mb-3 inline-flex items-center border-l-2 pl-2.5 ${DRIFT_TYPE_COLOR[zone.drift_type] ?? ''}`}>
+                          <span className="font-mono text-[10px] uppercase tracking-widest">{RISK_LABEL[zone.drift_type]}</span>
                         </div>
-                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500/40" />
+                        <p className="mb-2 break-words text-base font-semibold leading-snug text-white">
+                          {zone.feature_name}
+                        </p>
+                        <p className="mb-3 break-words text-sm leading-relaxed text-slate-400">
+                          {whyItMatters(zone)}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-[10px] uppercase tracking-widest text-slate-600">Usage</span>
+                          <span className={`font-mono text-sm font-bold tabular-nums ${
+                            zone.actual_usage_score === 0 ? 'text-red-400' :
+                            zone.actual_usage_score < 40  ? 'text-amber-400' : 'text-slate-300'
+                          }`}>
+                            {zone.actual_usage_score}/100
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
-                  {ghosts.length > 3 && (
-                    <button
-                      onClick={() => setShowAllGhosts(!showAllGhosts)}
-                      className="flex w-full items-center justify-center gap-1.5 border-t border-slate-800/60 py-2.5 font-mono text-xs uppercase tracking-widest text-slate-600 transition-colors hover:text-slate-400"
-                    >
-                      {showAllGhosts ? <><ChevronUp className="h-3 w-3" /> Collapse</> : <><ChevronDown className="h-3 w-3" /> Show all {ghosts.length}</>}
-                    </button>
-                  )}
-                </div>
+                )}
+              </div>
+            }
+          />
+        </div>
+
+        {/* ── Ghost Features — standalone card ─────────────────────────── */}
+        <div className="border border-slate-700/60 bg-slate-900">
+          <div className="border-b border-slate-800/60 bg-slate-950/60 px-5 py-3">
+            <span className="font-mono text-xs uppercase tracking-[0.22em] text-slate-400">Ghost Features</span>
+            <p className="mt-0.5 font-mono text-[10px] uppercase tracking-widest text-slate-600">
+              {ghosts.length === 0 ? 'None detected' : `${ghosts.length} Unused Build${ghosts.length !== 1 ? 's' : ''}`}
+            </p>
+          </div>
+          {ghosts.length === 0 ? (
+            <div className="px-5 py-4 text-sm text-emerald-400">No ghost features — all builds are used.</div>
+          ) : (
+            <div>
+              <div className="grid grid-cols-1 divide-y divide-slate-800/60 md:grid-cols-2 md:divide-x md:divide-y-0">
+                {visGhosts.map(zone => (
+                  <div key={zone.id} className="flex items-start gap-3 px-5 py-4">
+                    <Ghost className="mt-0.5 h-4 w-4 shrink-0 text-red-500/60" />
+                    <div className="min-w-0 flex-1 overflow-hidden">
+                      <p className="break-words text-sm font-semibold leading-snug text-white">{zone.feature_name}</p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {zone.intended_priority} priority · <span className="font-mono text-red-400">{zone.actual_usage_score}/100</span>
+                      </p>
+                    </div>
+                    <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500/40" />
+                  </div>
+                ))}
+              </div>
+              {ghosts.length > 3 && (
+                <button
+                  onClick={() => setShowAllGhosts(!showAllGhosts)}
+                  className="flex w-full items-center justify-center gap-1.5 border-t border-slate-800/60 py-2.5 font-mono text-xs uppercase tracking-widest text-slate-600 transition-colors hover:text-slate-400"
+                >
+                  {showAllGhosts ? <><ChevronUp className="h-3 w-3" /> Collapse</> : <><ChevronDown className="h-3 w-3" /> Show all {ghosts.length}</>}
+                </button>
               )}
             </div>
-
-          </div>
+          )}
         </div>
 
         {/* ── SECTION 3: Roadmap Reallocation ──────────────────────────── */}
