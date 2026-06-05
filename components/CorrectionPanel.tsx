@@ -77,7 +77,20 @@ export default function CorrectionPanel({ zone, isOpen, onClose }: Props) {
             created_at:        new Date().toISOString(),
           })
         )
-        setCards(mapped.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]))
+        const sorted = mapped.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority])
+        setCards(sorted)
+
+        if (typeof pendo !== 'undefined') {
+          pendo.track('correction_cards_generated', {
+            featureName: zone.feature_name,
+            driftType: zone.drift_type,
+            intendedPriority: zone.intended_priority,
+            actualUsageScore: zone.actual_usage_score,
+            cardsCount: sorted.length,
+            highestPriority: sorted[0]?.priority ?? 'none',
+            aiGenerated: sorted.some(c => c.ai_generated),
+          })
+        }
       })
       .catch(() => { if (!cancelled) setError('Could not reach /api/correct') })
       .finally(() => { if (!cancelled) setLoading(false) })

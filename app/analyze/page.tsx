@@ -51,6 +51,26 @@ export default function AnalyzePage() {
         drift_type: z.drift_type as DriftZone['drift_type'],
       }))
       setResult({ score: data.score, zones, featuresFound: data.featuresFound })
+
+      const ghostCount = zones.filter((z: DriftZone) => z.drift_type === 'ghost').length
+      const overbuiltCount = zones.filter((z: DriftZone) => z.drift_type === 'overbuilt').length
+      const underbuiltCount = zones.filter((z: DriftZone) => z.drift_type === 'underbuilt').length
+      const misunderstoodCount = zones.filter((z: DriftZone) => z.drift_type === 'misunderstood').length
+      const alignedCount = zones.filter((z: DriftZone) => z.drift_type === 'aligned').length
+
+      if (typeof pendo !== 'undefined') {
+        pendo.track('spec_analysis_completed', {
+          driftScore: data.score,
+          featuresFound: data.featuresFound,
+          zonesCount: zones.length,
+          ghostCount,
+          overbuiltCount,
+          underbuiltCount,
+          misunderstoodCount,
+          alignedCount,
+          specLength: spec.length,
+        })
+      }
     } catch {
       setError('Network error — is the dev server running?')
     } finally {
@@ -106,6 +126,17 @@ export default function AnalyzePage() {
       const data = await res.json()
       if (!res.ok) { setSaveError(data.error ?? 'Save failed'); return }
       setSavedId(data.project_id)
+
+      if (typeof pendo !== 'undefined') {
+        pendo.track('analysis_saved_to_dashboard', {
+          projectName: projectName.trim() || 'Unnamed',
+          driftScore: result.score,
+          zonesCount: result.zones.length,
+          specSource: 'analyze_page',
+          saveSource: 'analyze_page',
+          featuresFound: result.featuresFound,
+        })
+      }
     } catch {
       setSaveError('Network error — could not save')
     } finally {
@@ -118,6 +149,13 @@ export default function AnalyzePage() {
     setError(null)
     setResult(null)
     setSavedId(null)
+
+    if (typeof pendo !== 'undefined') {
+      pendo.track('demo_spec_loaded', {
+        demoProjectName: DEMO_PROJECT.name ?? 'TaskFlow Pro',
+        specLength: (DEMO_PROJECT.spec_content ?? '').length,
+      })
+    }
   }
 
   return (
