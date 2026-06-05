@@ -116,7 +116,7 @@ Drift is a full-stack Next.js 14 application built on the App Router — server 
 └──────────────────────┬──────────────────────────────────────┘
                        │ HTTP
 ┌──────────────────────▼──────────────────────────────────────┐
-│                    Next.js API Routes                        │
+│                    Next.js API Routes                       │
 │                                                             │
 │   /api/analyze   →   extract features + score spec          │
 │   /api/correct   →   generate AI correction card            │

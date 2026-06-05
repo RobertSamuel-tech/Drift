@@ -141,6 +141,13 @@ export default function AnalyzePage() {
     setError(null)
     setResult(null)
     setSavedId(null)
+
+    if (typeof pendo !== 'undefined') {
+      pendo.track('demo_spec_loaded', {
+        demoProjectName: DEMO_PROJECT.name ?? 'TaskFlow Pro',
+        specLength: (DEMO_PROJECT.spec_content ?? '').length,
+      })
+    }
   }
 
   return (

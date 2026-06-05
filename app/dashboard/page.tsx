@@ -71,7 +71,17 @@ function AnalysisCard({ p, index, onDelete }: { p: ProjectRow; index: number; on
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: p.id }),
       })
-      if (res.ok) onDelete(p.id)
+      if (res.ok) {
+        if (typeof pendo !== 'undefined') {
+          pendo.track('project_deleted', {
+            projectId: p.id,
+            projectName: p.name,
+            driftScore: p.drift_score,
+            specSource: p.spec_source,
+          })
+        }
+        onDelete(p.id)
+      }
     } finally {
       setRemoving(false)
     }
