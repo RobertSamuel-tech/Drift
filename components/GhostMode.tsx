@@ -99,6 +99,20 @@ export default function GhostMode({
     setSelectedZone(zone)
     setPanelOpen(true)
     analytics.ghostFeatureSelected({ featureName: zone.feature_name, driftType: zone.drift_type })
+
+    // Persist to DB for saved analyses (project.id is a real UUID, not 'session')
+    if (zone.drift_type === 'ghost' && project.id !== 'session') {
+      fetch('/api/recovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          project_id:   project.id,
+          feature_name: zone.feature_name,
+          drift_type:   zone.drift_type,
+          event_type:   'identified',
+        }),
+      }).catch(() => { /* non-blocking — never surface to user */ })
+    }
   }
 
   async function handleSaveAndClose() {

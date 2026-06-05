@@ -1,21 +1,34 @@
-// Drift Recovery Rate — single source of truth.
-// Formula: (unique ghost features corrected / unique ghost features identified) * 100
+// Drift Recovery Rate — computation layer.
 //
-// Identified = union of ghost features surfaced via ghost_feature_selected
-//              plus those in ai_correction_applied (corrected implies identified).
-// Corrected  = unique ghost features that received an ai_correction_applied event.
+// Three data sources depending on context:
+//   computeRecoveryMetrics()    — session storage  (Ghost Mode, real-time)
+//   fetchProjectRecovery(id)    — Supabase DB       (Report page, per-project)
+//   fetchGlobalRecovery()       — Supabase DB       (Dashboard, all projects)
 //
-// Duplicate handling: both sets use Set<string>, so a feature selected or
-// corrected multiple times counts only once. Rate can never exceed 100%.
+// Formula: (unique corrected ghosts / unique identified ghosts) × 100
+//
+// Duplicate handling: Sets deduplicate feature names so a feature
+// corrected or selected N times still counts as 1.
 
 import { getEvents } from './novus-session'
+import type { RecoveryResult } from '@/app/api/recovery/route'
+
+export type { RecoveryResult }
 
 export interface RecoveryMetrics {
   hasData:          boolean
-  identifiedGhosts: number   // unique ghost feature names surfaced
-  correctedGhosts:  number   // unique ghost feature names corrected
-  recoveryRate:     number   // 0–100, rounded integer
+  identifiedGhosts: number
+  correctedGhosts:  number
+  recoveryRate:     number
 }
+
+export function recoveryRateColor(rate: number): string {
+  if (rate > 60)  return 'text-emerald-400'
+  if (rate >= 25) return 'text-amber-400'
+  return 'text-red-400'
+}
+
+// ─── Session-scoped (Ghost Mode) ─────────────────────────────────────────────
 
 export function computeRecoveryMetrics(): RecoveryMetrics {
   const events = getEvents()
@@ -30,14 +43,8 @@ export function computeRecoveryMetrics(): RecoveryMetrics {
 
     if (!name || driftType !== 'ghost') continue
 
-    if (e.event === 'ghost_feature_selected') {
-      identified.add(name)
-    }
-
-    if (e.event === 'ai_correction_applied') {
-      identified.add(name) // corrected → also identified
-      corrected.add(name)
-    }
+    if (e.event === 'ghost_feature_selected') identified.add(name)
+    if (e.event === 'ai_correction_applied')  { identified.add(name); corrected.add(name) }
   }
 
   const identifiedCount = identified.size
@@ -53,8 +60,33 @@ export function computeRecoveryMetrics(): RecoveryMetrics {
   }
 }
 
-export function recoveryRateColor(rate: number): string {
-  if (rate > 60)  return 'text-emerald-400'
-  if (rate >= 25) return 'text-amber-400'
-  return 'text-red-400'
+// ─── Database-scoped (Dashboard + Report) ────────────────────────────────────
+
+async function fetchRecovery(projectId?: string): Promise<RecoveryMetrics | null> {
+  try {
+    const url = projectId
+      ? `/api/recovery?project_id=${encodeURIComponent(projectId)}`
+      : '/api/recovery'
+
+    const res = await fetch(url, { next: { revalidate: 0 } })
+    if (!res.ok) return null
+
+    const data: RecoveryResult = await res.json()
+    return {
+      hasData:          data.hasData,
+      identifiedGhosts: data.identifiedGhosts ?? 0,
+      correctedGhosts:  data.correctedGhosts  ?? 0,
+      recoveryRate:     data.recoveryRate      ?? 0,
+    }
+  } catch {
+    return null
+  }
+}
+
+export function fetchProjectRecovery(projectId: string): Promise<RecoveryMetrics | null> {
+  return fetchRecovery(projectId)
+}
+
+export function fetchGlobalRecovery(): Promise<RecoveryMetrics | null> {
+  return fetchRecovery()
 }

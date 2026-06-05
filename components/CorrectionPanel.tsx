@@ -85,6 +85,21 @@ export default function CorrectionPanel({ zone, isOpen, onClose }: Props) {
             driftType:   zone.drift_type,
             cardsCount:  mapped.length,
           })
+
+          // Persist to DB for saved analyses (project_id is a real UUID, not 'analyze'/'session')
+          const isRealProject = zone.project_id !== 'analyze' && zone.project_id !== 'session'
+          if (zone.drift_type === 'ghost' && isRealProject) {
+            fetch('/api/recovery', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                project_id:   zone.project_id,
+                feature_name: zone.feature_name,
+                drift_type:   zone.drift_type,
+                event_type:   'corrected',
+              }),
+            }).catch(() => { /* non-blocking */ })
+          }
         }
       })
       .catch(() => { if (!cancelled) setError('Could not reach /api/correct') })

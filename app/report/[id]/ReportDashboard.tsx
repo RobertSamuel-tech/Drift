@@ -260,7 +260,7 @@ export default function ReportDashboard({
       <div className="mx-auto max-w-[1800px] w-full space-y-3 px-8 py-5">
 
         {/* ── Drift Recovery Rate ───────────────────────────────────────── */}
-        <DriftRecoveryRate variant="full" />
+        <DriftRecoveryRate variant="full" projectId={projectId} />
 
         {/* ── SECTION 2: Reality Map — unified card, 3-col grid inside ─── */}
         <div className="border border-slate-700/60 bg-slate-900 overflow-hidden">
