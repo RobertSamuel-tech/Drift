@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle, Loader2, Save, ArrowRight, BarChart2 } from 'lucide-react'
 import { getSession, clearSession } from '@/lib/analysis-session'
+import { analytics } from '@/lib/novus'
 import { calculateWasteMetrics } from '@/lib/cost-analysis'
 import { buildFeatureLifecycle } from '@/lib/feature-lifecycle'
 import { buildRealityMap } from '@/lib/reality-map'
@@ -80,6 +81,7 @@ export default function ReportSessionPage() {
     if (!session) { router.replace('/analyze'); return }
     setRawSession({ spec: session.spec, projectName: session.projectName, score: session.score, zones: session.zones })
     setReportProps(buildReportProps(session.spec, session.projectName, session.score, session.zones, session.createdAt))
+    analytics.reportGenerated({ score: session.score, featuresFound: session.featuresFound })
   }, [router])
 
   async function handleSave() {
@@ -100,6 +102,7 @@ export default function ReportSessionPage() {
       const data = await res.json()
       if (!res.ok) { setSaveError(data.error ?? 'Save failed'); return }
       setSavedId(data.project_id)
+      analytics.analysisSaved({ projectId: data.project_id, score: rawSession.score })
       clearSession()
     } catch {
       setSaveError('Network error — could not save')
@@ -119,11 +122,18 @@ export default function ReportSessionPage() {
       {/* Unsaved session banner */}
       {!savedId && (
         <div className="sticky top-0 z-50 flex items-center justify-between gap-4 border-b border-amber-500/30 bg-amber-500/8 px-8 py-2.5">
-          <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="font-mono text-xs uppercase tracking-widest text-amber-400">
-              Unsaved Analysis · Not yet in your archive
-            </span>
+          <div className="flex items-center gap-3">
+            <Link href="/analyze?restore=1"
+              className="flex items-center gap-1 font-mono text-xs uppercase tracking-widest text-slate-500 transition-colors hover:text-slate-300">
+              <ArrowRight className="h-3 w-3 rotate-180" /> Analyze
+            </Link>
+            <span className="h-3 w-px bg-amber-500/20" />
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <span className="font-mono text-xs uppercase tracking-widest text-amber-400">
+                Unsaved Analysis · Not yet in your archive
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             {saveError && <span className="font-mono text-xs text-red-400">{saveError}</span>}

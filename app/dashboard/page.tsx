@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Plus, Ghost, AlertTriangle, Clock, BarChart2, TrendingDown, Activity, ArrowRight, Trash2 } from 'lucide-react'
+import { analytics } from '@/lib/novus'
+import DriftRecoveryRate from '@/components/DriftRecoveryRate'
 
 interface ProjectRow {
   id: string
@@ -136,6 +138,7 @@ function AnalysisCard({ p, index, onDelete }: { p: ProjectRow; index: number; on
       <div className="mt-auto grid grid-cols-2 divide-x divide-slate-800/60 border-t border-slate-800/60">
         <Link
           href={`/ghost/${p.id}`}
+          onClick={() => analytics.ghostModeOpened({ projectId: p.id, source: 'archive' })}
           className="flex items-center justify-center gap-2 py-4 font-mono text-xs uppercase tracking-widest text-slate-400 transition-all hover:bg-emerald-500/8 hover:text-emerald-400"
         >
           <Ghost className="h-3.5 w-3.5" />
@@ -161,6 +164,7 @@ export default function DashboardPage() {
   const [error, setError]       = useState<string | null>(null)
 
   useEffect(() => {
+    analytics.archiveOpened()
     fetch('/api/projects')
       .then(r => r.json())
       .then(d => { if (d.error) setError(d.error); else setProjects(d.projects) })
@@ -222,6 +226,11 @@ export default function DashboardPage() {
               Initialize New Analysis <ArrowRight className="h-4 w-4" />
             </Link>
           </motion.div>
+
+          {/* Drift Recovery Rate — live telemetry */}
+          <div className="mb-6">
+            <DriftRecoveryRate variant="full" />
+          </div>
 
           {/* Metric tiles — 4 across */}
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

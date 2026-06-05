@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { analytics } from '@/lib/novus'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Loader2, AlertCircle, CheckCircle2, Zap, ArrowRight } from 'lucide-react'
 import type { DriftZone, CorrectionCard } from '@/lib/database.types'
@@ -78,6 +79,13 @@ export default function CorrectionPanel({ zone, isOpen, onClose }: Props) {
           })
         )
         setCards(mapped.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]))
+        if (mapped.length > 0 && zone) {
+          analytics.aiCorrectionApplied({
+            featureName: zone.feature_name,
+            driftType:   zone.drift_type,
+            cardsCount:  mapped.length,
+          })
+        }
       })
       .catch(() => { if (!cancelled) setError('Could not reach /api/correct') })
       .finally(() => { if (!cancelled) setLoading(false) })

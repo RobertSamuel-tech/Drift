@@ -4,10 +4,13 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, LayoutDashboard, Save, Loader2, Activity } from 'lucide-react'
+import { analytics } from '@/lib/novus'
 import { calculateWasteMetrics, getCostTheme, formatCost } from '@/lib/cost-analysis'
 import DriftGrid from './DriftGrid'
 import SpecViewer from './SpecViewer'
 import NovusFeed from './NovusFeed'
+import NovusAnalyticsPanel from './NovusAnalyticsPanel'
+import DriftRecoveryRate from './DriftRecoveryRate'
 import CorrectionPanel from './CorrectionPanel'
 import type { Project, DriftZone } from '@/lib/database.types'
 import type { NovusEvent } from '@/lib/drift-algorithm'
@@ -95,6 +98,7 @@ export default function GhostMode({
   function handleZoneClick(zone: DriftZone) {
     setSelectedZone(zone)
     setPanelOpen(true)
+    analytics.ghostFeatureSelected({ featureName: zone.feature_name, driftType: zone.drift_type })
   }
 
   async function handleSaveAndClose() {
@@ -174,6 +178,7 @@ export default function GhostMode({
                 />
               </>
             )}
+            <DriftRecoveryRate variant="stat" />
           </div>
 
           {onSaveAndClose && (
@@ -224,11 +229,16 @@ export default function GhostMode({
             status="LIVE"
             dotColor="bg-emerald-400"
           />
-          <div className="relative flex-1 overflow-hidden p-3">
+          {/* Novus event feed — fills available space */}
+          <div className="relative min-h-0 flex-1 overflow-hidden p-3">
             <NovusFeed events={novusData} />
             <span className="pointer-events-none absolute bottom-3 right-3 font-mono text-[9px] uppercase tracking-widest text-slate-700">
               Powered by Novus.ai
             </span>
+          </div>
+          {/* Novus Live Signals — real session telemetry */}
+          <div className="shrink-0 overflow-y-auto border-t border-slate-700/60" style={{ maxHeight: '42%' }}>
+            <NovusAnalyticsPanel />
           </div>
         </div>
       </div>

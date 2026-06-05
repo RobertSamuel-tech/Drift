@@ -2,6 +2,7 @@
 
 import { Download } from 'lucide-react'
 import { calculateWasteMetrics, formatCost } from '@/lib/cost-analysis'
+import { analytics } from '@/lib/novus'
 import type { DriftZone } from '@/lib/database.types'
 import type { FallbackCard } from '@/lib/fallback-cards'
 
@@ -16,6 +17,7 @@ interface Props {
 
 export default function ExportButton({ projectName, score, analyzedAt, zones, cards, summary }: Props) {
   function download() {
+    analytics.reportExported({ projectName, score })
     const waste     = calculateWasteMetrics(zones)
     const riskOrder: Record<string, number> = { ghost: 0, overbuilt: 1, misunderstood: 2, underbuilt: 3 }
     const risks = [...zones]

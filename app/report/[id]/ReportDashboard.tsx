@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   Ghost, AlertTriangle, Zap, ArrowLeft, ExternalLink, Info,
@@ -15,6 +15,8 @@ import type { RoadmapReallocationResult, RoadmapAction } from '@/lib/roadmap-rea
 import type { FeatureLifecycleItem, LifecycleStage } from '@/lib/feature-lifecycle'
 import type { FallbackCard } from '@/lib/fallback-cards'
 import { formatCost } from '@/lib/cost-analysis'
+import { analytics } from '@/lib/novus'
+import DriftRecoveryRate from '@/components/DriftRecoveryRate'
 import ExportButton from './ExportButton'
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -105,6 +107,10 @@ export default function ReportDashboard({
   projectId,
 }: ReportDashboardProps) {
 
+  useEffect(() => {
+    analytics.reportViewed({ projectId, score: p.drift_score })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Lifecycle tab state
   const [activeTab, setActiveTab] = useState<LifecycleStage>('Ghost')
   const [showAllLifecycle, setShowAllLifecycle] = useState(false)
@@ -178,6 +184,7 @@ export default function ReportDashboard({
             summary={summary}
           />
           <Link href={`/ghost/${projectId}`}
+            onClick={() => analytics.ghostModeOpened({ projectId, source: 'report' })}
             className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-slate-500 transition-colors hover:text-emerald-400">
             Ghost Mode <ExternalLink className="h-3.5 w-3.5" />
           </Link>
@@ -251,6 +258,9 @@ export default function ReportDashboard({
       </section>
 
       <div className="mx-auto max-w-[1800px] w-full space-y-3 px-8 py-5">
+
+        {/* ── Drift Recovery Rate ───────────────────────────────────────── */}
+        <DriftRecoveryRate variant="full" />
 
         {/* ── SECTION 2: Reality Map — unified card, 3-col grid inside ─── */}
         <div className="border border-slate-700/60 bg-slate-900 overflow-hidden">

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,7 +9,8 @@ import DriftScore from '@/components/DriftScore'
 import DriftGrid from '@/components/DriftGrid'
 import CorrectionPanel from '@/components/CorrectionPanel'
 import { DEMO_PROJECT } from '@/lib/demo-data'
-import { setSession } from '@/lib/analysis-session'
+import { setSession, getSession, clearSession } from '@/lib/analysis-session'
+import { analytics } from '@/lib/novus'
 import type { DriftZone } from '@/lib/database.types'
 
 interface AnalysisResult {
@@ -31,11 +32,26 @@ export default function AnalyzePage() {
   const [savedId, setSavedId]       = useState<string | null>(null)
   const [saveError, setSaveError]   = useState<string | null>(null)
 
+  // Restore analysis state when returning from Ghost Mode or Report session
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (!params.get('restore')) return
+    const session = getSession()
+    if (!session) return
+    setSpec(session.spec)
+    setProjectName(session.projectName === 'Unsaved Analysis' ? '' : session.projectName)
+    setResult({ score: session.score, zones: session.zones, featuresFound: session.featuresFound })
+    // Strip the restore param from the URL without adding a history entry
+    history.replaceState(null, '', '/analyze')
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   async function handleAnalyze() {
     setError(null)
     setResult(null)
     setSavedId(null)
     setLoading(true)
+    clearSession() // discard any previous session — user is starting a fresh analysis
+    analytics.analysisStarted()
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST',
@@ -51,6 +67,11 @@ export default function AnalyzePage() {
         drift_type: z.drift_type as DriftZone['drift_type'],
       }))
       setResult({ score: data.score, zones, featuresFound: data.featuresFound })
+      analytics.analysisCompleted({
+        score:         data.score,
+        featuresFound: data.featuresFound,
+        driftTypes:    [...new Set(zones.map(z => z.drift_type))],
+      })
     } catch {
       setError('Network error — is the dev server running?')
     } finally {
@@ -76,6 +97,7 @@ export default function AnalyzePage() {
 
   function handleViewInGhost() {
     if (!result) return
+    analytics.ghostModeOpened({ projectId: savedId ?? 'session', source: 'analyze' })
     if (savedId) { router.push(`/ghost/${savedId}`); return }
     storeSession(result)
     router.push('/ghost/session')
@@ -85,7 +107,7 @@ export default function AnalyzePage() {
     if (!result) return
     if (savedId) { router.push(`/report/${savedId}`); return }
     storeSession(result)
-    router.push('/report/session')
+    router.push('/report/session?restore=1')
   }
 
   async function handleSave() {
@@ -106,6 +128,7 @@ export default function AnalyzePage() {
       const data = await res.json()
       if (!res.ok) { setSaveError(data.error ?? 'Save failed'); return }
       setSavedId(data.project_id)
+      analytics.analysisSaved({ projectId: data.project_id, score: result.score })
     } catch {
       setSaveError('Network error — could not save')
     } finally {
@@ -147,6 +170,7 @@ export default function AnalyzePage() {
             <textarea
               value={spec}
               onChange={e => setSpec(e.target.value)}
+              onPaste={() => analytics.specPasted()}
               rows={10}
               placeholder={'Paste your PRD, README, feature list, roadmap, or product specification...\n\nTip: include lines like "Feature: Dashboard (MUST HAVE)" or "- CSV export (MVP)" for best detection.'}
               className="w-full resize-none rounded-xl border border-slate-700/50 bg-slate-950/60 p-4 font-mono text-sm text-slate-300 placeholder-slate-600 outline-none transition-colors focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20"
