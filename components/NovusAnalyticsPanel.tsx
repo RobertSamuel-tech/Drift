@@ -18,14 +18,14 @@ function SignalRow({
   color?:    string
 }) {
   return (
-    <div className="flex items-start justify-between gap-2 border-b border-slate-800/50 px-4 py-2.5 last:border-0">
-      <span className="font-mono text-[9px] uppercase tracking-widest text-slate-600 mt-0.5 shrink-0">
+    <div className="flex items-start justify-between gap-2 border-b border-slate-800/50 px-4 py-3 last:border-0">
+      <span className="font-mono text-[10px] uppercase tracking-widest text-slate-500 mt-0.5 shrink-0">
         {label}
       </span>
       <div className="text-right min-w-0">
         <p className={`font-mono text-xs font-bold tabular-nums ${color} truncate`}>{primary}</p>
         {secondary && (
-          <p className="font-mono text-[9px] text-slate-700 tabular-nums">{secondary}</p>
+          <p className="font-mono text-[10px] text-slate-500 tabular-nums">{secondary}</p>
         )}
       </div>
     </div>
@@ -52,26 +52,26 @@ export default function NovusAnalyticsPanel() {
 
   // ── Header ─────────────────────────────────────────────────────────────────
   const header = (
-    <div className="flex items-center justify-between border-b border-slate-700/60 bg-slate-950/80 px-4 py-2">
+    <div className="flex items-center justify-between border-b border-slate-700/60 bg-slate-950/80 px-4 py-2.5">
       <div className="flex items-center gap-2">
-        <span className="relative flex h-1.5 w-1.5">
+        <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
         </span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-slate-400">
+        <span className="font-mono text-xs uppercase tracking-[0.18em] text-slate-300">
           Novus Live Signals
         </span>
       </div>
       <div className="flex items-center gap-2">
-        <span className="rounded-sm border border-emerald-500/30 bg-emerald-500/8 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-widest text-emerald-400">
-          Live from Novus
+        <span className="rounded-sm border border-emerald-500/30 bg-emerald-500/8 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-emerald-400">
+          Live
         </span>
         <button
           onClick={refresh}
           title="Refresh telemetry"
-          className="text-slate-700 transition-colors hover:text-slate-400"
+          className="text-slate-600 transition-colors hover:text-slate-300"
         >
-          <RefreshCw className="h-2.5 w-2.5" />
+          <RefreshCw className="h-3.5 w-3.5" />
         </button>
       </div>
     </div>
@@ -83,7 +83,7 @@ export default function NovusAnalyticsPanel() {
       <div>
         {header}
         <div className="px-4 py-4 text-center">
-          <p className="font-mono text-[9px] uppercase tracking-widest text-slate-700">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-slate-500">
             Loading telemetry…
           </p>
         </div>
@@ -97,10 +97,10 @@ export default function NovusAnalyticsPanel() {
       <div>
         {header}
         <div className="px-4 py-5 text-center">
-          <p className="font-mono text-[9px] uppercase tracking-widest text-slate-600 leading-relaxed">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-slate-400 leading-relaxed">
             Waiting for Novus telemetry…
           </p>
-          <p className="mt-1 font-mono text-[8px] text-slate-800">
+          <p className="mt-1.5 font-mono text-[10px] text-slate-600">
             Events populate as you interact
           </p>
         </div>
@@ -141,35 +141,35 @@ export default function NovusAnalyticsPanel() {
 
       {/* Session counters */}
       <div className="grid grid-cols-3 divide-x divide-slate-800/50 border-t border-slate-800/50">
-        <div className="px-2 py-2 text-center">
+        <div className="px-2 py-3 text-center">
           <p className="font-mono text-sm font-bold tabular-nums text-emerald-400">
             {signals.totalAnalysesCompleted}
           </p>
-          <p className="font-mono text-[8px] uppercase tracking-widest text-slate-700 mt-0.5">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-slate-500 mt-1">
             Analyses
           </p>
         </div>
-        <div className="px-2 py-2 text-center">
+        <div className="px-2 py-3 text-center">
           <p className="font-mono text-sm font-bold tabular-nums text-slate-300">
             {signals.totalGhostSessions}
           </p>
-          <p className="font-mono text-[8px] uppercase tracking-widest text-slate-700 mt-0.5">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-slate-500 mt-1">
             Ghost Opens
           </p>
         </div>
-        <div className="px-2 py-2 text-center">
+        <div className="px-2 py-3 text-center">
           <p className="font-mono text-sm font-bold tabular-nums text-slate-300">
             {signals.totalReportsGenerated}
           </p>
-          <p className="font-mono text-[8px] uppercase tracking-widest text-slate-700 mt-0.5">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-slate-500 mt-1">
             Reports
           </p>
         </div>
       </div>
 
-      {/* Data source proof */}
-      <div className="border-t border-slate-800/40 px-4 py-1.5">
-        <p className="font-mono text-[8px] text-slate-800">
+      {/* Last refresh */}
+      <div className="border-t border-slate-800/40 px-4 py-2">
+        <p className="font-mono text-[9px] text-slate-600">
           {new Date(lastRefresh).toLocaleTimeString()} · session telemetry
         </p>
       </div>

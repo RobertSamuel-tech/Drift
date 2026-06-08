@@ -86,18 +86,6 @@ export default function ExportButton({ projectName, score, analyzedAt, zones, ca
     })
     a.click()
     URL.revokeObjectURL(url)
-
-    if (typeof pendo !== 'undefined') {
-      pendo.track('report_exported', {
-        projectName,
-        driftScore: score,
-        zonesCount: zones.length,
-        cardsCount: cards.length,
-        wastedFeatures: waste.wastedFeatures,
-        estimatedCost: formatCost(waste.estimatedCost),
-        fileFormat: 'markdown',
-      })
-    }
   }
 
   return (

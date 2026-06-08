@@ -6,13 +6,16 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, Plus, Ghost, AlertTriangle, Clock, BarChart2, TrendingDown, Activity, ArrowRight, Trash2 } from 'lucide-react'
 import { analytics } from '@/lib/novus'
 import DriftRecoveryRate from '@/components/DriftRecoveryRate'
+import ProductHealthScore from '@/components/ProductHealthScore'
 
 interface ProjectRow {
-  id: string
-  name: string
-  drift_score: number
-  spec_source: string
-  created_at: string
+  id:              string
+  name:            string
+  drift_score:     number
+  spec_source:     string
+  created_at:      string
+  ghost_count:     number
+  estimated_waste: number
 }
 
 function scoreColor(s: number)      { return s >= 80 ? 'text-emerald-400' : s >= 50 ? 'text-amber-400' : 'text-red-400' }
@@ -128,11 +131,17 @@ function AnalysisCard({ p, index, onDelete }: { p: ProjectRow; index: number; on
       {/* Metadata row */}
       <div className="grid grid-cols-3 divide-x divide-slate-800/60 border-b border-slate-800/60">
         <div className="px-4 py-3 text-center">
-          <p className="font-mono text-lg font-bold text-slate-400">—</p>
+          <p className={`font-mono text-lg font-bold ${p.ghost_count > 0 ? 'text-red-400' : 'text-slate-500'}`}>
+            {p.ghost_count}
+          </p>
           <p className="font-mono text-[9px] uppercase tracking-widest text-slate-600">Ghost Features</p>
         </div>
         <div className="px-4 py-3 text-center">
-          <p className="font-mono text-lg font-bold text-slate-400">—</p>
+          <p className={`font-mono text-lg font-bold ${p.estimated_waste > 0 ? 'text-red-400' : 'text-slate-500'}`}>
+            {p.estimated_waste > 0
+              ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(p.estimated_waste)
+              : '$0'}
+          </p>
           <p className="font-mono text-[9px] uppercase tracking-widest text-slate-600">Est. Waste</p>
         </div>
         <div className="flex flex-col items-center justify-center px-4 py-3">
@@ -192,21 +201,27 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-slate-950 font-sans text-white">
 
       {/* ── Command bar ──────────────────────────────────────────────────── */}
-      <header className="flex h-12 items-center justify-between border-b border-slate-700/60 bg-slate-900 px-8">
-        <div className="flex items-center gap-4">
+      <header className="flex h-14 items-center justify-between border-b border-slate-700/60 bg-slate-900 px-8">
+        <div className="flex items-center gap-5">
           <Link href="/"
-            className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-slate-600 transition-colors hover:text-slate-300">
-            <ArrowLeft className="h-3 w-3" /> HOME
+            className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-widest text-slate-600 transition-colors hover:text-slate-300">
+            <ArrowLeft className="h-3.5 w-3.5" /> HOME
           </Link>
-          <span className="h-3 w-px bg-slate-700" />
-          <span className="font-mono text-[10px] font-bold text-[#FF8A1F] tracking-widest">DRIFT</span>
+          <span className="h-4 w-px bg-slate-700" />
+          <span className="font-mono text-sm font-bold text-[#FF8A1F] tracking-widest">DRIFT</span>
           <span className="text-slate-700">/</span>
-          <span className="font-mono text-[10px] uppercase tracking-widest text-slate-400">Analysis Archive</span>
+          <span className="font-mono text-xs uppercase tracking-widest text-slate-400">Analysis Archive</span>
         </div>
-        <Link href="/analyze"
-          className="flex items-center gap-1.5 border border-slate-700/60 bg-slate-800/60 px-4 py-1.5 font-mono text-xs uppercase tracking-widest text-slate-300 transition-all hover:border-emerald-500/40 hover:text-emerald-400">
-          <Plus className="h-3 w-3" /> New Analysis
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/demo"
+            className="flex items-center gap-1.5 border border-slate-700/60 bg-slate-800/60 px-4 py-2 font-mono text-xs uppercase tracking-widest text-slate-400 transition-all hover:border-amber-500/40 hover:text-amber-400">
+            Demo Metrics
+          </Link>
+          <Link href="/analyze"
+            className="flex items-center gap-1.5 border border-slate-700/60 bg-slate-800/60 px-4 py-2 font-mono text-xs uppercase tracking-widest text-slate-300 transition-all hover:border-emerald-500/40 hover:text-emerald-400">
+            <Plus className="h-3.5 w-3.5" /> New Analysis
+          </Link>
+        </div>
       </header>
 
       {/* ── Hero section ─────────────────────────────────────────────────── */}
@@ -237,8 +252,9 @@ export default function DashboardPage() {
             </Link>
           </motion.div>
 
-          {/* Drift Recovery Rate — live telemetry */}
-          <div className="mb-6">
+          {/* Product Health Score + Drift Recovery Rate — live telemetry */}
+          <div className="mb-6 grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <ProductHealthScore variant="hero" />
             <DriftRecoveryRate variant="full" />
           </div>
 

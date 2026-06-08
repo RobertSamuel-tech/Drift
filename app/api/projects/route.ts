@@ -1,17 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 
+const SPRINT_WEIGHT: Record<string, number> = { high: 1, medium: 0.5, low: 0.25 }
+const SPRINT_DAYS   = 10
+const TEAM_SIZE     = 5
+const COST_PER_DAY  = 800
+
 export async function GET() {
   try {
     const supabase = createAdminClient()
-    const { data, error } = await supabase
+
+    const { data: projects, error } = await supabase
       .from('projects')
       .select('id, name, drift_score, spec_source, created_at, last_analyzed')
       .order('created_at', { ascending: false })
       .limit(50)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-    return NextResponse.json({ projects: data ?? [] })
+    if (!projects || projects.length === 0) return NextResponse.json({ projects: [] })
+
+    // Single batch query — no N+1
+    const projectIds = projects.map(p => p.id)
+    const { data: zones } = await supabase
+      .from('drift_zones')
+      .select('project_id, drift_type, intended_priority')
+      .in('project_id', projectIds)
+
+    // Compute ghost count + estimated waste per project using the same
+    // formula as calculateWasteMetrics in lib/cost-analysis.ts
+    const statsByProject = new Map<string, { ghost_count: number; estimated_waste: number }>()
+    for (const id of projectIds) {
+      const wasteZones = (zones ?? []).filter(
+        z => z.project_id === id && (z.drift_type === 'ghost' || z.drift_type === 'overbuilt')
+      )
+      const sprints       = wasteZones.reduce((s, z) => s + (SPRINT_WEIGHT[z.intended_priority] ?? 0), 0)
+      const estimatedWaste = Math.max(0, sprints * SPRINT_DAYS * TEAM_SIZE * COST_PER_DAY)
+      statsByProject.set(id, { ghost_count: wasteZones.length, estimated_waste: estimatedWaste })
+    }
+
+    const enriched = projects.map(p => ({
+      ...p,
+      ghost_count:     statsByProject.get(p.id)?.ghost_count     ?? 0,
+      estimated_waste: statsByProject.get(p.id)?.estimated_waste ?? 0,
+    }))
+
+    return NextResponse.json({ projects: enriched })
   } catch (error) {
     return NextResponse.json({ error: String(error) }, { status: 500 })
   }

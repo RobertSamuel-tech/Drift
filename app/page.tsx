@@ -274,7 +274,7 @@ export default function HomePage() {
       {/* ── Footer — Phase 9: increase contrast ──────────────────────────── */}
       <footer className="mt-4 border-t border-slate-700/60 px-8 py-4 text-center">
         <span className="font-mono text-xs uppercase tracking-widest text-slate-500">
-          DRIFT · Next.js 14 · Novus.ai · GPT-4o-mini · Supabase · 2025
+          DRIFT · Next.js 14 · Novus.ai · GPT-4o-mini · Supabase
         </span>
       </footer>
     </div>

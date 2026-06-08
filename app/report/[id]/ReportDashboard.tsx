@@ -17,6 +17,7 @@ import type { FallbackCard } from '@/lib/fallback-cards'
 import { formatCost } from '@/lib/cost-analysis'
 import { analytics } from '@/lib/novus'
 import DriftRecoveryRate from '@/components/DriftRecoveryRate'
+import ProductHealthScore from '@/components/ProductHealthScore'
 import ExportButton from './ExportButton'
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -259,8 +260,11 @@ export default function ReportDashboard({
 
       <div className="mx-auto max-w-[1800px] w-full space-y-3 px-8 py-5">
 
-        {/* ── Drift Recovery Rate ───────────────────────────────────────── */}
-        <DriftRecoveryRate variant="full" projectId={projectId} />
+        {/* ── Product Health Score ─────────────────────────────────────── */}
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+          <ProductHealthScore variant="report" projectId={projectId} />
+          <DriftRecoveryRate variant="full" projectId={projectId} />
+        </div>
 
         {/* ── SECTION 2: Reality Map — unified card, 3-col grid inside ─── */}
         <div className="border border-slate-700/60 bg-slate-900 overflow-hidden">

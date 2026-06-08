@@ -11,6 +11,7 @@ import SpecViewer from './SpecViewer'
 import NovusFeed from './NovusFeed'
 import NovusAnalyticsPanel from './NovusAnalyticsPanel'
 import DriftRecoveryRate from './DriftRecoveryRate'
+import ProductHealthScore from './ProductHealthScore'
 import CorrectionPanel from './CorrectionPanel'
 import type { Project, DriftZone } from '@/lib/database.types'
 import type { NovusEvent } from '@/lib/drift-algorithm'
@@ -45,7 +46,7 @@ function StatBlock({
       <span className={`font-mono text-lg font-bold tabular-nums leading-none ${valueClass}`}>
         {value}
       </span>
-      <span className="font-mono text-[9px] uppercase tracking-widest text-slate-600">
+      <span className="font-mono text-[10px] uppercase tracking-widest text-slate-600">
         {label}
       </span>
     </div>
@@ -129,34 +130,34 @@ export default function GhostMode({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="flex h-14 shrink-0 items-center justify-between border-b border-slate-700/60 bg-slate-900 px-4"
+        className="flex h-16 shrink-0 items-center justify-between border-b border-slate-700/60 bg-slate-900 px-5"
       >
         {/* Left: breadcrumb + project */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-0.5">
             {backHref && (
               <Link href={backHref}
-                className="flex items-center gap-1 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-500 transition-colors hover:text-slate-200">
-                <ArrowLeft className="h-3 w-3" /> {backLabel}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 font-mono text-xs uppercase tracking-widest text-slate-500 transition-colors hover:text-slate-200">
+                <ArrowLeft className="h-3.5 w-3.5" /> {backLabel}
               </Link>
             )}
             <Link href="/"
-              className="flex items-center gap-1 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-600 transition-colors hover:text-slate-300">
-              <ArrowLeft className="h-3 w-3" /> HOME
+              className="flex items-center gap-1.5 px-2.5 py-1.5 font-mono text-xs uppercase tracking-widest text-slate-600 transition-colors hover:text-slate-300">
+              <ArrowLeft className="h-3.5 w-3.5" /> HOME
             </Link>
             <Link href="/dashboard"
-              className="flex items-center gap-1 px-2 py-1 font-mono text-[10px] uppercase tracking-widest text-slate-600 transition-colors hover:text-slate-300">
-              <LayoutDashboard className="h-3 w-3" /> ARCHIVE
+              className="flex items-center gap-1.5 px-2.5 py-1.5 font-mono text-xs uppercase tracking-widest text-slate-600 transition-colors hover:text-slate-300">
+              <LayoutDashboard className="h-3.5 w-3.5" /> ARCHIVE
             </Link>
           </div>
-          <span className="text-slate-800">/</span>
+          <span className="text-slate-700">/</span>
           <div className="flex items-center gap-2">
-            <Activity className="h-3.5 w-3.5 text-emerald-500/70" />
+            <Activity className="h-4 w-4 text-emerald-500/70" />
             <div>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-slate-600">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-slate-600">
                 GHOST ANALYSIS
               </span>
-              <p className="font-sans text-sm font-semibold leading-none text-white">
+              <p className="font-sans text-base font-semibold leading-tight text-white">
                 {project.name}
               </p>
             </div>
@@ -193,17 +194,20 @@ export default function GhostMode({
               </>
             )}
             <DriftRecoveryRate variant="stat" />
+            {project.id !== 'session' && (
+              <ProductHealthScore variant="stat" projectId={project.id} />
+            )}
           </div>
 
           {onSaveAndClose && (
             <button
               onClick={handleSaveAndClose}
               disabled={saving}
-              className="flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/8 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-emerald-400 transition-all hover:bg-emerald-500/15 disabled:opacity-50"
+              className="flex items-center gap-1.5 border border-emerald-500/30 bg-emerald-500/8 px-4 py-2 font-mono text-xs uppercase tracking-widest text-emerald-400 transition-all hover:bg-emerald-500/15 disabled:opacity-50"
             >
               {saving
-                ? <><Loader2 className="h-3 w-3 animate-spin" /> SAVING</>
-                : <><Save className="h-3 w-3" /> SAVE & CLOSE</>}
+                ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> SAVING</>
+                : <><Save className="h-3.5 w-3.5" /> SAVE & CLOSE</>}
             </button>
           )}
         </div>

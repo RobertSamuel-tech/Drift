@@ -28,6 +28,11 @@ export function getEvents(): TelemetryEvent[] {
   } catch { return [] }
 }
 
+export function clearEvents(): void {
+  if (typeof window === 'undefined') return
+  try { sessionStorage.removeItem(EVENTS_KEY) } catch { /* unavailable */ }
+}
+
 // ─── Aggregation ──────────────────────────────────────────────────────────────
 
 export interface NovusLiveSignals {
@@ -66,6 +71,7 @@ export function aggregateSignals(): NovusLiveSignals {
       case 'report_viewed': {
         const pid = String(p.projectId ?? 'session')
         reportViews[pid] = (reportViews[pid] ?? 0) + 1
+        totalReportsGenerated++   // saved reports fire report_viewed, not report_generated
         break
       }
       case 'analysis_completed':
@@ -73,9 +79,6 @@ export function aggregateSignals(): NovusLiveSignals {
         break
       case 'ghost_mode_opened':
         totalGhostSessions++
-        break
-      case 'report_generated':
-        totalReportsGenerated++
         break
     }
   }
