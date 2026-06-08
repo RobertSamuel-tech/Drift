@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   Ghost, AlertTriangle, Zap, ArrowLeft, ExternalLink, Info,
-  ArrowRight, TrendingUp, Wrench, Trash2, ChevronDown, ChevronUp,
+  TrendingUp, Wrench, Trash2, ChevronDown, ChevronUp,
 } from 'lucide-react'
 import ProductRealityMap from '@/components/ProductRealityMap'
 import type { Project, DriftZone } from '@/lib/database.types'

@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await query
 
     if (error) return NextResponse.json({ hasData: false, error: error.message })
-    if (!data || data.length === 0) return NextResponse.json({ hasData: false } satisfies RecoveryResult & { hasData: false })
+    if (!data || data.length === 0) return NextResponse.json({ hasData: false, identifiedGhosts: 0, correctedGhosts: 0, recoveryRate: 0 } satisfies RecoveryResult)
 
     // Deduplicate by (project_id::feature_name) for global or feature_name for per-project
     const identified = new Set<string>()

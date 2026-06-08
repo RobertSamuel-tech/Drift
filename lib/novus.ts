@@ -29,7 +29,7 @@ export const analytics = {
   },
 
   analysisCompleted(props: { score: number; featuresFound: number; driftTypes: string[] }): void {
-    track('analysis_completed', props)
+    track('spec_analysis_completed', props)
   },
 
   specPasted(): void {
@@ -66,6 +66,14 @@ export const analytics = {
 
   aiCorrectionApplied(props: { featureName: string; driftType: string; cardsCount: number }): void {
     track('ai_correction_applied', props)
+  },
+
+  demoSpecLoaded(props: { demoProjectName: string; specLength: number }): void {
+    track('demo_spec_loaded', { ...props, source: 'demo' })
+  },
+
+  projectDeleted(props: { projectId: string; projectName: string; driftScore: number; specSource: string }): void {
+    track('project_deleted', props)
   },
 
 }

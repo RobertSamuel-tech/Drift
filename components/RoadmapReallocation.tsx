@@ -5,7 +5,7 @@ import { TrendingUp, Wrench, Trash2, ArrowRight, ArrowDown } from 'lucide-react'
 import type { RoadmapReallocationResult, RoadmapAction } from '@/lib/roadmap-reallocation'
 import type { DriftZone } from '@/lib/database.types'
 import { formatCost } from '@/lib/cost-analysis'
-import { panel, metric, spring } from '@/components/ui/drift-theme'
+import { panel, spring } from '@/components/ui/drift-theme'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 

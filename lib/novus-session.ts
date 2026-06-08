@@ -33,6 +33,21 @@ export function clearEvents(): void {
   try { sessionStorage.removeItem(EVENTS_KEY) } catch { /* unavailable */ }
 }
 
+// Wipes all local telemetry: sessionStorage event log + any Pendo visitor state cached locally.
+// Does NOT affect Novus/Pendo cloud records — those are permanent server-side.
+export function resetTelemetry(): { eventsCleared: number; message: string } {
+  if (typeof window === 'undefined') return { eventsCleared: 0, message: 'SSR — no-op' }
+  const count = getEvents().length
+  try { sessionStorage.removeItem(EVENTS_KEY) } catch { /* unavailable */ }
+  // Clear any Pendo visitor-level local state if the SDK exposes it
+  try {
+    if (typeof window.pendo?.clearSession === 'function') {
+      (window.pendo as unknown as { clearSession(): void }).clearSession()
+    }
+  } catch { /* pendo not loaded or no clearSession */ }
+  return { eventsCleared: count, message: `Cleared ${count} local telemetry events. Novus cloud records are unaffected.` }
+}
+
 // ─── Aggregation ──────────────────────────────────────────────────────────────
 
 export interface NovusLiveSignals {
@@ -74,7 +89,7 @@ export function aggregateSignals(): NovusLiveSignals {
         totalReportsGenerated++   // saved reports fire report_viewed, not report_generated
         break
       }
-      case 'analysis_completed':
+      case 'spec_analysis_completed':
         totalAnalyses++
         break
       case 'ghost_mode_opened':

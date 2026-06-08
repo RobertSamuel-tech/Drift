@@ -70,7 +70,7 @@ export default function AnalyzePage() {
       analytics.analysisCompleted({
         score:         data.score,
         featuresFound: data.featuresFound,
-        driftTypes:    [...new Set(zones.map(z => z.drift_type))],
+        driftTypes:    Array.from(new Set(zones.map(z => z.drift_type))),
       })
     } catch {
       setError('Network error — is the dev server running?')
@@ -142,12 +142,10 @@ export default function AnalyzePage() {
     setResult(null)
     setSavedId(null)
 
-    if (typeof pendo !== 'undefined') {
-      pendo.track('demo_spec_loaded', {
-        demoProjectName: DEMO_PROJECT.name ?? 'TaskFlow Pro',
-        specLength: (DEMO_PROJECT.spec_content ?? '').length,
-      })
-    }
+    analytics.demoSpecLoaded({
+      demoProjectName: DEMO_PROJECT.name ?? 'TaskFlow Pro',
+      specLength: (DEMO_PROJECT.spec_content ?? '').length,
+    })
   }
 
   return (

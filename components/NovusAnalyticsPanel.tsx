@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { RefreshCw } from 'lucide-react'
-import { aggregateSignals, type NovusLiveSignals } from '@/lib/novus-session'
+import { RefreshCw, Trash2 } from 'lucide-react'
+import { aggregateSignals, resetTelemetry, type NovusLiveSignals } from '@/lib/novus-session'
 
 // ─── Single signal row ────────────────────────────────────────────────────────
 
@@ -43,6 +43,13 @@ export default function NovusAnalyticsPanel() {
     setLastRefresh(Date.now())
   }, [])
 
+  const reset = useCallback(() => {
+    const result = resetTelemetry()
+    setSignals(null)
+    setTimeout(refresh, 50)
+    console.info('[Drift] Telemetry reset:', result.message)
+  }, [refresh])
+
   // Initial load + poll every 4 seconds for new events fired by user actions
   useEffect(() => {
     refresh()
@@ -72,6 +79,13 @@ export default function NovusAnalyticsPanel() {
           className="text-slate-600 transition-colors hover:text-slate-300"
         >
           <RefreshCw className="h-3.5 w-3.5" />
+        </button>
+        <button
+          onClick={reset}
+          title="Clear local telemetry cache"
+          className="text-slate-700 transition-colors hover:text-red-400"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
     </div>

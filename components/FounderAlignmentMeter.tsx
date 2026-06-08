@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import type { FounderAlignment } from '@/lib/founder-alignment'
 import { formatCost } from '@/lib/cost-analysis'
-import { metric, spring } from '@/components/ui/drift-theme'
+import { spring } from '@/components/ui/drift-theme'
 
 // ─── colour palette keyed on regretIndex ─────────────────────────────────────
 function severityColors(regret: number) {
@@ -48,10 +48,6 @@ function zoneArcPath(pctStart: number, pctEnd: number) {
   return arcPath(s, e)
 }
 
-function labelPos(pctMid: number, r: number) {
-  const deg = ARC_START + (pctMid / 100) * ARC_SWEEP
-  return polarToXY(deg)       // caller passes custom r via override
-}
 function labelPosR(pctMid: number, r: number) {
   const deg = ARC_START + (pctMid / 100) * ARC_SWEEP
   const rad = ((deg - 90) * Math.PI) / 180
@@ -82,7 +78,7 @@ function AnimatedArc({ regret, stroke }: { regret: number; stroke: string }) {
       strokeWidth={13}
       strokeLinecap="round"
       strokeDasharray={circumference}
-      style={{ strokeDashoffset: dashOffset } as React.CSSProperties}
+      style={{ strokeDashoffset: dashOffset }}
     />
   )
 }

@@ -16,11 +16,10 @@ export async function GET(req: NextRequest) {
   const supabase  = createAdminClient()
 
   try {
-    return NextResponse.json(
-      projectId
-        ? await perProjectHealth(supabase, projectId)
-        : await globalHealth(supabase),
-    )
+    const result = projectId
+      ? await perProjectHealth(supabase, projectId)
+      : await globalHealth(supabase)
+    return NextResponse.json(result)   // null serialises as JSON null → component shows "—"
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
@@ -41,7 +40,7 @@ async function perProjectHealth(
       .eq('drift_type', 'ghost'),
   ])
 
-  const zones: DriftZone[] = (rawZones ?? []).map((z: any) => ({
+  const zones: DriftZone[] = (rawZones ?? []).map((z) => ({
     ...z,
     drift_type:        z.drift_type        as DriftZone['drift_type'],
     intended_priority: z.intended_priority as DriftZone['intended_priority'],
@@ -63,7 +62,7 @@ async function perProjectHealth(
   // Alignment index — exact same computation as report page
   const realityData    = buildRealityMap(zones)
   const alignmentData  = calculateFounderAlignment({
-    driftScore:         project?.drift_score ?? 50,
+    driftScore:         project?.drift_score ?? 0,
     ghostFeatures:      zones.filter(z => z.drift_type === 'ghost').length,
     overbuiltFeatures:  zones.filter(z => z.drift_type === 'overbuilt').length,
     concentrationScore: realityData.concentrationScore,
@@ -94,7 +93,7 @@ async function perProjectHealth(
 
 async function globalHealth(
   supabase: ReturnType<typeof createAdminClient>,
-): Promise<HealthScore> {
+): Promise<HealthScore | null> {
   const [{ data: projects }, { data: zones }, { data: events }] = await Promise.all([
     supabase.from('projects').select('drift_score'),
     supabase.from('drift_zones').select('actual_usage_score'),
@@ -102,6 +101,12 @@ async function globalHealth(
       .select('project_id, feature_name, event_type')
       .eq('drift_type', 'ghost'),
   ])
+
+  const allProjects = projects ?? []
+  const allZones    = zones    ?? []
+
+  // No analyses exist yet — return null so the UI shows its no-data state
+  if (allProjects.length === 0 && allZones.length === 0) return null
 
   // Recovery rate
   const identified = new Set<string>()
@@ -117,16 +122,14 @@ async function globalHealth(
     ? Math.round((correctedCount / identifiedCount) * 100)
     : 0
 
-  // Alignment index — average drift_score (primary input to calculateFounderAlignment)
-  const allProjects    = projects ?? []
+  // Alignment index — average drift_score across all saved projects
   const alignmentIndex = allProjects.length > 0
-    ? Math.round(allProjects.reduce((s: number, p: any) => s + p.drift_score, 0) / allProjects.length)
-    : 50
+    ? Math.round(allProjects.reduce((s: number, p) => s + p.drift_score, 0) / allProjects.length)
+    : 0
 
   // Feature adoption — average usage score across all zones fleet-wide
-  const allZones        = zones ?? []
   const featureAdoption = allZones.length > 0
-    ? Math.round(allZones.reduce((s: number, z: any) => s + z.actual_usage_score, 0) / allZones.length)
+    ? Math.round(allZones.reduce((s: number, z) => s + z.actual_usage_score, 0) / allZones.length)
     : 0
 
   // Report activity — 10 corrections across fleet = 100

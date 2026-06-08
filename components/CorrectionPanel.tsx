@@ -110,7 +110,7 @@ export default function CorrectionPanel({ zone, isOpen, onClose }: Props) {
 
   return (
     <Sheet open={isOpen} onOpenChange={open => !open && onClose()}>
-      <SheetContent className="flex flex-col overflow-hidden border-l border-slate-800 bg-slate-900 p-0 shadow-2xl shadow-black/50">
+      <SheetContent aria-describedby={undefined} className="flex flex-col overflow-hidden border-l border-slate-800 bg-slate-900 p-0 shadow-2xl shadow-black/50">
 
         <SheetHeader className="shrink-0 border-b border-slate-800/80 px-6 py-5">
           <div className="flex items-start justify-between gap-3 pr-6">
