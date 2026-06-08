@@ -1,0 +1,49 @@
+sequenceDiagram
+    actor User
+    participant UI as Browser
+    participant Ana as analytics
+    participant Pendo as Pendo / Novus Cloud
+    participant API as /api/analyze
+    participant GPT as GPT-4o-mini
+    participant DB as Supabase
+
+    User->>UI: Paste product spec → Analyze
+    UI->>Ana: analytics.analysisStarted()
+    Ana-->>Pendo: track analysis_started
+    Ana-->>UI: storeEvent → sessionStorage
+
+    UI->>API: POST spec + projectName
+    API->>GPT: Extract feature list · assign intent priority 0-100
+    GPT-->>API: features[] · name · priority · description
+
+    API->>GPT: Score each feature against Novus usage model
+    GPT-->>API: zones[] · usage_score · waste_estimate · classification
+
+    Note over API: Drift Classifier<br/>priority gap x usage deviation<br/>→ ghost / overbuilt / underbuilt / misunderstood / aligned
+
+    API-->>UI: driftScore 0-100, zones[], ghostCount, totalWaste
+
+    UI->>Ana: analytics.specAnalysisCompleted with score + featuresFound + driftTypes
+    Ana-->>Pendo: track spec_analysis_completed
+
+    opt Save to Archive
+        UI->>DB: INSERT projects + drift_zones
+        DB-->>UI: projectId
+        UI->>Ana: analytics.analysisSaved with projectId + score
+        Ana-->>Pendo: track analysis_saved
+    end
+
+    opt Ghost Mode investigation
+        UI->>Ana: analytics.ghostModeOpened with projectId + source
+        User->>UI: Click drift zone
+        UI->>Ana: analytics.ghostFeatureSelected with featureName + driftType
+        UI->>DB: INSERT recovery_events event_type identified
+
+        User->>UI: Apply AI correction
+        UI->>API: GET /api/ghost-mode corrections
+        API->>GPT: User story reframe · copy rewrite · mockup direction
+        GPT-->>UI: correction cards[]
+        UI->>Ana: analytics.aiCorrectionApplied with featureName + cardsCount
+        UI->>DB: INSERT recovery_events event_type corrected
+        Note over UI: Drift Recovery Rate updates in Ghost Mode header
+    end
