@@ -57,6 +57,133 @@ flowchart LR
 
 ---
 
+<h2 align="center">System Architecture</h2>
+
+<h3 align="center">Full-Stack Component Map</h3>
+
+```mermaid
+graph TB
+    subgraph BROWSER["  BROWSER — Client-Side React  "]
+        PG_ANALYZE["Analyze  /analyze\nSpec input · Score display · Save flow"]
+        PG_GHOST["Ghost Mode  /ghost/[id]  /ghost/session\nThree-pane investigation · AI corrections"]
+        PG_DASH["Dashboard  /dashboard\nArchive · Product Health Score"]
+        PG_REPORT["Founder Report  /report/[id]\nNine-section executive view"]
+        LIVE_PANEL["Novus Live Signals Panel\nTop Ghost · Corrections · Recovery · Session stats"]
+        SESSION[("sessionStorage\ndrift_novus_telemetry\nJSON event log")]
+    end
+
+    subgraph TELEMETRY["  ANALYTICS ABSTRACTION — lib/novus.ts  ·  lib/novus-session.ts  "]
+        ABSTR["analytics.*( )\n13 strongly-typed event methods\nSingle call site — no direct Pendo in components"]
+        STORE["storeEvent( )\nAppend TelemetryEvent to sessionStorage log"]
+        AGG["aggregateSignals( )\nDerive Live Signals from log — 4 s poll"]
+        RESET["resetTelemetry( )\nClear sessionStorage + pendo.clearSession( )"]
+    end
+
+    PENDO_SDK["Pendo SDK\nwindow.pendo.track( )\nnext/script · strategy afterInteractive\ngraceful no-op when API key absent"]
+
+    subgraph API_LAYER["  NEXT.JS 14 APP ROUTER — API Routes  ·  Node.js Runtime  "]
+        API1["/api/analyze\nParse spec  →  GPT feature extraction\n→  usage scoring  →  drift classification  →  Drift Score"]
+        API2["/api/health-score\nRecovery Rate × 0.40  +  Alignment Index × 0.30\nFeature Adoption × 0.20  +  Report Activity × 0.10\nReturns null when analyses = 0"]
+        API3["/api/recovery\nSELECT recovery_events WHERE drift_type = ghost\ncorrected ÷ identified × 100  ·  per-project or global"]
+        API4["/api/ghost-mode\nFetch drift_zones  ·  build context\nProxy AI correction card generation"]
+    end
+
+    subgraph COMPUTE["  COMPUTE — Server-Side Libraries  "]
+        C1["Drift Classifier  ·  lib/analyze.ts\nghost · overbuilt · underbuilt · misunderstood · aligned\nthreshold: priority gap × usage deviation"]
+        C2["computeHealthScore( )  ·  lib/health-score.ts\nWeighted composite  ·  trend: Improving / Declining\nnull guard — no phantom scores"]
+        C3["calculateFounderAlignment( )  ·  lib/founder-alignment.ts\nRegret Index  ·  Alignment Index\ninputs: driftScore · ghostCount · overbuiltCount · concentrationScore"]
+        C4["buildRealityMap( )  ·  lib/reality-map.ts\nIntent priority rank vs Novus usage rank\noutputs: concentrationScore · reallocationList"]
+    end
+
+    subgraph DB["  SUPABASE — PostgreSQL  ·  createAdminClient( )  ·  SERVICE_ROLE_KEY only  "]
+        T1[("projects\nid  ·  name  ·  drift_score  ·  spec_source  ·  spec_text  ·  created_at")]
+        T2[("drift_zones\nproject_id  ·  name  ·  drift_type  ·  intended_priority\nactual_usage_score  ·  waste_estimate  ·  description")]
+        T3[("recovery_events\nproject_id  ·  feature_name  ·  event_type  ·  drift_type  ·  created_at")]
+    end
+
+    subgraph EXT["  EXTERNAL SERVICES  "]
+        OR["OpenRouter  →  GPT-4o-mini\nSpec parsing  ·  Feature intent scoring\nAI correction card generation"]
+        NC["Novus.ai  +  Pendo Cloud\nEvent stream  ·  Funnels  ·  Heatmaps\nRetention  ·  NPS  ·  Segments"]
+    end
+
+    PG_ANALYZE & PG_GHOST & PG_DASH & PG_REPORT -->|"user action  →  analytics.*()"| ABSTR
+    ABSTR --> STORE & PENDO_SDK
+    STORE <-->|"read / write  JSON"| SESSION
+    SESSION -.->|"4 s interval"| AGG
+    AGG -->|"live signal data"| LIVE_PANEL
+    PENDO_SDK -->|"HTTPS  ·  event + properties"| NC
+
+    PG_ANALYZE -->|"POST  { spec, projectName }"| API1
+    PG_DASH -->|"GET /api/health-score"| API2
+    PG_DASH & PG_REPORT -->|"GET /api/recovery?project_id"| API3
+    PG_GHOST -->|"GET /api/ghost-mode/[id]"| API4
+
+    API1 & API4 -->|"structured prompt"| OR
+    API1 --> C1
+    API2 --> C2
+    C2 --> C3 & C4
+
+    API1 -->|"INSERT"| T1 & T2
+    PG_GHOST -->|"INSERT recovery_events"| T3
+    API2 & API3 & API4 -->|"SELECT"| T1 & T2 & T3
+```
+
+<h3 align="center">Drift Score Pipeline</h3>
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant UI as Browser
+    participant Ana as analytics.*()
+    participant Pendo as Pendo · Novus Cloud
+    participant API as /api/analyze
+    participant GPT as GPT-4o-mini
+    participant DB as Supabase
+
+    User->>UI: Paste product spec → Analyze
+    UI->>Ana: analytics.analysisStarted()
+    Ana-->>Pendo: track('analysis_started')
+    Ana-->>UI: storeEvent() → sessionStorage
+
+    UI->>API: POST { spec, projectName }
+    API->>GPT: Extract feature list · assign intent priority 0–100
+    GPT-->>API: features[] · name · priority · description
+
+    API->>GPT: Score each feature against Novus usage model
+    GPT-->>API: zones[] · usage_score · waste_estimate · classification
+
+    Note over API: Drift Classifier<br/>priority gap × usage deviation<br/>→ ghost / overbuilt / underbuilt / misunderstood / aligned
+
+    API-->>UI: { driftScore 0–100, zones[], ghostCount, totalWaste }
+
+    UI->>Ana: analytics.specAnalysisCompleted({ score, featuresFound, driftTypes[] })
+    Ana-->>Pendo: track('spec_analysis_completed', ...)
+
+    opt Save to Archive
+        UI->>DB: INSERT projects + drift_zones
+        DB-->>UI: { projectId }
+        UI->>Ana: analytics.analysisSaved({ projectId, score })
+        Ana-->>Pendo: track('analysis_saved', ...)
+    end
+
+    opt Ghost Mode investigation
+        UI->>Ana: analytics.ghostModeOpened({ projectId, source })
+        User->>UI: Click drift zone
+        UI->>Ana: analytics.ghostFeatureSelected({ featureName, driftType })
+        UI->>DB: INSERT recovery_events { event_type: 'identified' }
+
+        User->>UI: Apply AI correction
+        UI->>API: GET /api/ghost-mode/[id]/corrections
+        API->>GPT: User story reframe · copy rewrite · mockup direction
+        GPT-->>UI: correction cards[]
+        UI->>Ana: analytics.aiCorrectionApplied({ featureName, cardsCount })
+        UI->>DB: INSERT recovery_events { event_type: 'corrected' }
+        Note over UI: Drift Recovery Rate<br/>updates in Ghost Mode header
+    end
+```
+
+---
+
 <h2 align="center">Drift Classifications</h2>
 
 Every feature receives one of five classifications based on the gap between **intended priority** and **actual usage score** from Novus:
