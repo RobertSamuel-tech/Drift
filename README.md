@@ -452,4 +452,4 @@ DRIFT is the first platform designed to measure Product Drift - the gap between 
 ---
 <h2 align="center">License</h2>
 
-MIT © 2026 RobertSamuel-tech — see [LICENSE](LICENSE)
+MIT © 2026 RobertSamuel-tech - see [LICENSE](LICENSE)
