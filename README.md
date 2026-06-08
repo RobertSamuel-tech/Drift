@@ -446,7 +446,9 @@ npm run dev      # http://localhost:3000
 Database migration files are in `supabase/` — run `schema.sql` followed by the numbered migrations in the `supabase/migrations/` folder in your Supabase SQL editor.
 
 ---
+
 DRIFT is the first platform designed to measure Product Drift - the gap between what teams intended to build and what users actually value.
+
 ---
 <h2 align="center">License</h2>
 
