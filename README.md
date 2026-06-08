@@ -284,7 +284,7 @@ DRIFT ships with **TaskFlow Pro** — a pre-built demo covering all five drift t
 | Node.js 18+ | Runtime |
 | Supabase project | Persistence for analyses, zones, and recovery events |
 | OpenRouter API key | GPT-4o-mini for AI correction cards |
-| Novus.ai / Pendo key | Optional — all features work without it |
+| Novus.ai / Pendo key | event tracking |
 
 <h3 align="center">Setup</h3>
 
