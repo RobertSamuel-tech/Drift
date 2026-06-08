@@ -1,10 +1,12 @@
+```mermaid
 flowchart LR
     A[Paste product spec] --> B[AI extracts features\nand assigns intent scores]
     B --> C[Cross-referenced against\nNovus.ai usage events]
     C --> D[Five drift classifications\nassigned per feature]
-    D --> E[Drift Score 0-100]
+    D --> E[Drift Score 0–100]
     E --> F{Explore}
     F --> G[Ghost Mode\nThree-pane investigation]
     F --> H[Founder Report\nNine-section executive view]
     G --> I[AI Correction Cards\nper drift zone]
     H --> J[Save to Archive\nPersisted in Supabase]
+```
