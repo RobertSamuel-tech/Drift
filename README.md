@@ -1,8 +1,8 @@
-# DRIFT
+<h1 align="center">DRIFT</h1>
 
 <div align="center">
 
-### Product Intelligence Command Center
+<h3 align="center">Product Intelligence Command Center</h3>
 
 *Find the gap between what you shipped and what users actually adopted.*
 
@@ -18,7 +18,7 @@
 
 ---
 
-## What is DRIFT?
+<h2 align="center">What is DRIFT?</h2>
 
 DRIFT is a **product intelligence tool** that compares your original product specification against real user behavior data from [Novus.ai](https://novus.ai) — powered by [Pendo](https://pendo.io) — and produces a single scored output: the **Drift Score**.
 
@@ -29,7 +29,7 @@ DRIFT is a **product intelligence tool** that compares your original product spe
 
 ---
 
-## The Problem
+<h2 align="center">The Problem</h2>
 
 Product teams have analytics. They don't have **intent-aware** analytics.
 
@@ -40,7 +40,7 @@ The gap between those two questions is where product debt accumulates, roadmaps 
 
 ---
 
-## How It Works
+<h2 align="center">How It Works</h2>
 
 ```mermaid
 flowchart LR
@@ -57,7 +57,7 @@ flowchart LR
 
 ---
 
-## Drift Classifications
+<h2 align="center">Drift Classifications</h2>
 
 Every feature receives one of five classifications based on the gap between **intended priority** and **actual usage score** from Novus:
 
@@ -71,7 +71,7 @@ Every feature receives one of five classifications based on the gap between **in
 
 ---
 
-## Core Features
+<h2 align="center">Core Features</h2>
 
 | Feature | Description |
 |---|---|
@@ -91,11 +91,11 @@ Every feature receives one of five classifications based on the gap between **in
 
 ---
 
-## Novus.ai + Pendo Integration
+<h2 align="center">Novus.ai + Pendo Integration</h2>
 
 DRIFT uses [Novus.ai](https://novus.ai) as its analytics backbone with [Pendo](https://pendo.io) as the underlying event tracking engine. Every user interaction with a drift zone, analysis, or report is captured and surfaced as a live signal.
 
-### Architecture
+<h3 align="center">Architecture</h3>
 
 All analytics calls route through a single abstraction layer. No component interacts with Pendo directly.
 
@@ -108,7 +108,7 @@ User action
 
 The session store enables Ghost Mode Live Signals, Drift Recovery Rate, and Product Health Score panels to display real telemetry without a Pendo Data API key.
 
-### Tracked Events
+<h3 align="center">Tracked Events</h3>
 
 | Event | Properties | Fired When |
 |---|---|---|
@@ -128,7 +128,7 @@ The session store enables Ghost Mode Live Signals, Drift Recovery Rate, and Prod
 
 All 13 events originate exclusively from real user interactions. Zero auto-fire on load. Zero fabricated values.
 
-### Novus Live Signals Panel
+<h3 align="center">Novus Live Signals Panel</h3>
 
 Displayed in Ghost Mode's right sidebar. Powered entirely by the local sessionStorage event log — zero external API calls required for display.
 
@@ -143,13 +143,13 @@ Displayed in Ghost Mode's right sidebar. Powered entirely by the local sessionSt
 
 Shows **"Waiting for Novus telemetry…"** until the first real interaction. No fabricated values.
 
-### Pendo SDK Initialization
+<h3 align="center">Pendo SDK Initialization</h3>
 
 Pendo loads via `next/script` with `strategy="afterInteractive"` — non-blocking, after hydration. Gracefully disabled when `NEXT_PUBLIC_NOVUS_API_KEY` is unset: a console warning is emitted, and all analytics calls continue writing to sessionStorage. No feature is gated behind the Pendo key.
 
 ---
 
-## Product Health Score
+<h2 align="center">Product Health Score</h2>
 
 A composite metric surfacing overall product health across four Pendo-backed signals.
 
@@ -175,7 +175,7 @@ Displayed in: Dashboard hero · Founder Report · Ghost Mode header.
 
 ---
 
-## Drift Recovery Rate
+<h2 align="center">Drift Recovery Rate</h2>
 
 Tracks how actively a team is correcting identified ghost features, using Pendo event data as the source.
 
@@ -197,7 +197,7 @@ Available in three scopes: session (Ghost Mode, live), per-project (Founder Repo
 
 ---
 
-## Ghost Mode
+<h2 align="center">Ghost Mode</h2>
 
 The primary investigation interface. Three-pane layout:
 
@@ -213,7 +213,7 @@ Clicking a drift zone fires a `ghost_feature_selected` event to Pendo and logs a
 
 ---
 
-## Tech Stack
+<h2 align="center">Tech Stack</h2>
 
 | Layer | Technology | Role |
 |---|---|---|
@@ -228,7 +228,7 @@ Clicking a drift zone fires a `ghost_feature_selected` event to Pendo and logs a
 
 ---
 
-## Application Routes
+<h2 align="center">Application Routes</h2>
 
 | Route | Description |
 |---|---|
@@ -244,13 +244,13 @@ Clicking a drift zone fires a `ghost_feature_selected` event to Pendo and logs a
 
 ---
 
-## Demo — TaskFlow Pro
+<h2 align="center">Demo — TaskFlow Pro</h2>
 
 DRIFT ships with **TaskFlow Pro** — a pre-built demo covering all five drift types. No credentials or database setup required.
 
 **Entry point:** `/ghost` or **View Demo** on the landing page.
 
-### Demo Data
+<h3 align="center">Demo Data</h3>
 
 | Feature | Intended Priority | Novus Usage Score | Classification | Signal |
 |---|---|---|---|---|
@@ -262,7 +262,7 @@ DRIFT ships with **TaskFlow Pro** — a pre-built demo covering all five drift t
 
 **Drift Score 44 · Ghost Features 2 · Estimated Waste $80,000**
 
-### Recommended Path (5 minutes)
+<h3 align="center">Recommended Path (5 minutes)</h3>
 
 | Step | Route | What to observe |
 |---|---|---|
@@ -275,9 +275,9 @@ DRIFT ships with **TaskFlow Pro** — a pre-built demo covering all five drift t
 
 ---
 
-## Getting Started
+<h2 align="center">Getting Started</h2>
 
-### Prerequisites
+<h3 align="center">Prerequisites</h3>
 
 | Requirement | Purpose |
 |---|---|
@@ -286,7 +286,7 @@ DRIFT ships with **TaskFlow Pro** — a pre-built demo covering all five drift t
 | OpenRouter API key | GPT-4o-mini for AI correction cards |
 | Novus.ai / Pendo key | Optional — all features work without it |
 
-### Setup
+<h3 align="center">Setup</h3>
 
 ```bash
 git clone https://github.com/RobertSamuel-tech/Drift-.git
@@ -320,6 +320,6 @@ Database migration files are in `supabase/` — run `schema.sql` followed by the
 
 ---
 
-## License
+<h2 align="center">License</h2>
 
 MIT © 2026 RobertSamuel-tech — see [LICENSE](LICENSE)
