@@ -14,6 +14,12 @@
 [![Novus](https://img.shields.io/badge/Novus.ai-Analytics-6366f1)](https://novus.ai)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+| Resource | Link |
+|---|---|
+| 🚀 Live Deployment | [drift-4nfs1j5va-samuels-projects-e18db683.vercel.app](https://drift-4nfs1j5va-samuels-projects-e18db683.vercel.app/) |
+| 🔗 Novus Integration (Memory Gallery) | [Google Drive folder](https://drive.google.com/drive/folders/1AKoCIaMA4DMNyX1ShukaVUwqr3ras9za) |
+| 🎬 Demo Video | [Watch on YouTube](https://youtu.be/kNIRbmflLcc?si=K4VRmCFjFY8dI-vj) |
+
 </div>
 
 ---
